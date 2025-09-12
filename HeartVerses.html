@@ -47,6 +47,14 @@
             box-shadow: 0 0 10px var(--primary-glow), 0 0 20px var(--primary-glow);
             transition: all 0.3s ease;
         }
+        
+        .button:disabled {
+            background-color: #444;
+            color: #888;
+            cursor: not-allowed;
+            text-shadow: none;
+            box-shadow: none;
+        }
 
         .button:hover {
             transform: scale(1.05);
@@ -55,6 +63,24 @@
         .small-button {
             font-size: 1.2em;
             padding: 10px 20px;
+        }
+
+        .icon-button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5em;
+            padding: 5px 10px;
+            cursor: pointer;
+            text-shadow: 0 0 8px var(--primary-glow);
+        }
+        
+        #user-screen p {
+            font-style: italic;
+            color: #ccc;
+            max-width: 600px;
+            margin: 20px auto 30px auto;
+            line-height: 1.5;
         }
 
         input, select, textarea {
@@ -66,6 +92,11 @@
             margin: 10px;
             font-size: 1em;
             box-shadow: 0 0 5px var(--primary-glow);
+        }
+        
+        #recent-users-select {
+            min-width: 240px;
+            vertical-align: middle;
         }
 
         .top-bar {
@@ -153,7 +184,8 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 20px;
+            gap: 15px;
+            flex-wrap: wrap;
         }
 
         .difficulty-slider-container {
@@ -254,6 +286,21 @@
             padding: 5px 8px;
         }
         
+        .file-menu-container {
+            font-size: 1.17em; /* Match h3 font size */
+            display: inline-block;
+        }
+        
+        .file-menu-container label {
+             font-size: 1em;
+             vertical-align: middle;
+        }
+
+        .file-menu-container select {
+            font-size: 0.8em; /* Adjust select font size relative to container */
+            vertical-align: middle;
+        }
+
         .notification {
             position: fixed;
             bottom: 20px;
@@ -303,6 +350,7 @@
             <textarea id="typing-input" class="typing-area" autocorrect="off" autocapitalize="none" spellcheck="false"></textarea>
             <div id="completion-controls" class="completion-controls hidden">
                 <button id="next-verse-btn" class="button small-button">Next</button>
+                <button id="speak-verse-btn" class="icon-button">🔊</button>
                 <div class="difficulty-slider-container">
                     <span>Difficulty: </span>
                     <input type="range" min="1" max="7" value="1" id="difficulty-slider">
@@ -315,10 +363,11 @@
         <!-- User Selection Screen -->
         <div id="user-screen">
             <h1>Heart Verses</h1>
+            <p>Heart Verses strives to help us memorize verses by utilizing multiple learning styles: Reading, Writing, Auditory, and Kinesthetic. Click the button to begin training.</p>
             <input type="text" id="name-input" placeholder="Enter your first name">
             <select id="recent-users-select"></select>
             <br><br>
-            <button id="start-btn" class="button">Lay up God's words</button>
+            <button id="start-btn" class="button" disabled>Loading verses...</button>
         </div>
 
         <!-- Edit Screen (Modal) -->
@@ -334,13 +383,14 @@
                 <button id="add-verse-btn" class="button small-button">Add Verse</button>
                 <hr class="decorative-line">
                 <h3>Verse Pool</h3>
-                 <div class="top-bar-item">
+                 <div class="file-menu-container">
                     <label for="file-menu" class="settings-button">💾</label>
                     <select id="file-menu">
                         <option>Save/Load</option>
                         <option value="save-browser">Save to browser</option>
                         <option value="export-file">Export to file</option>
                         <option value="import-file">Import from file</option>
+                        <option value="load-rooted">Load Rooted verses</option>
                     </select>
                     <input type="file" id="import-file-input" class="hidden" accept=".json">
                 </div>
@@ -391,6 +441,7 @@
             const typingInput = document.getElementById('typing-input');
             const completionControls = document.getElementById('completion-controls');
             const nextVerseBtn = document.getElementById('next-verse-btn');
+            const speakVerseBtn = document.getElementById('speak-verse-btn');
             const doneBtn = document.getElementById('done-btn');
             const difficultySlider = document.getElementById('difficulty-slider');
             const difficultyLevelLabel = document.getElementById('difficulty-level-label');
@@ -412,9 +463,9 @@
             let notificationTimeout;
 
             // Initial Setup
-            function initializeApp() {
-                loadInitialVerses();
+            async function initializeApp() {
                 loadFromBrowser();
+                await loadInitialVerses();
                 populateRecentUsers();
                 
                 startBtn.addEventListener('click', startChallenge);
@@ -424,10 +475,15 @@
                 fileMenu.addEventListener('change', handleFileMenu);
                 importFileInput.addEventListener('change', importFromFile);
                 nextVerseBtn.addEventListener('click', nextVerse);
+                speakVerseBtn.addEventListener('click', speakVerse);
                 doneBtn.addEventListener('click', showStats);
                 closeStatsScreenBtn.addEventListener('click', returnToUserScreen);
                 typingInput.addEventListener('input', handleTyping);
                 difficultySlider.addEventListener('input', () => difficultyLevelLabel.textContent = difficultySlider.value);
+                difficultySlider.addEventListener('change', updateDifficultyStatOnSliderChange);
+
+                startBtn.disabled = false;
+                startBtn.textContent = "Lay up God's words in my heart";
             }
 
             function showNotification(message, isError = false) {
@@ -442,23 +498,25 @@
                 }, 3000);
             }
 
-            function loadInitialVerses() {
-                if(localStorage.getItem('heartVersesData')) return; // Don't load defaults if user has data
-                const initialJson = {
-                  "verses": [
-                    {
-                      "reference": "John 14:6",
-                      "translation": "ESV",
-                      "text": "Jesus said to him, \"I am the way, and the truth, and the life. No one comes to the Father except through me.\""
-                    },
-                    {
-                      "reference": "Hebrews 4:15",
-                      "translation": "ESV",
-                      "text": "For we do not have a high priest who is unable to sympathize with our weaknesses, but one who in every respect has been tempted as we are, yet without sin."
+            async function loadInitialVerses() {
+                if (appState.verses.length > 0) return;
+                const url = "https://adambutcher-007.github.io/HeartVerses/bible_verses.json";
+
+                try {
+                    const response = await fetch(url);
+                    if (!response.ok) throw new Error('Network response was not ok.');
+                    const data = await response.json();
+                    if (data && data.verses) {
+                        appState.verses = data.verses;
+                        console.log('Successfully loaded verses from URL.');
+                    } else {
+                        throw new Error('Invalid JSON structure from URL');
                     }
-                  ]
-                };
-                appState.verses = initialJson.verses;
+                } catch (error) {
+                    console.error('Could not load verses from URL, loading default verses.', error);
+                    const initialJson = { "verses": [ { "reference": "John 14:6", "translation": "ESV", "text": "Jesus said to him, \"I am the way, and the truth, and the life. No one comes to the Father except through me.\"" }, { "reference": "Hebrews 4:15", "translation": "ESV", "text": "For we do not have a high priest who is unable to sympathize with our weaknesses, but one who in every respect has been tempted as we are, yet without sin." } ] };
+                    appState.verses = initialJson.verses;
+                }
             }
             
             function startChallenge() {
@@ -553,7 +611,7 @@
                                     displayChar = originalChar;
                                     charClass = 'revealed';
                                 } else {
-                                    displayChar = '*'; // Show asterisk for wrong character on hidden word
+                                    displayChar = '*';
                                     charClass = 'incorrect';
                                 }
                             } else {
@@ -582,18 +640,31 @@
             
             function completeVerse() {
                 typingInput.disabled = true;
-                updateCurrentVerseStats();
+                updateCurrentVerseStats(true);
                 completionControls.classList.remove('hidden');
                 const utterance = new SpeechSynthesisUtterance(`Congratulations ${appState.currentUser}!`);
                 speechSynthesis.speak(utterance);
             }
+
+            function speakVerse() {
+                if (!appState.currentVerse) return;
+                speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(appState.currentVerse.text);
+                speechSynthesis.speak(utterance);
+            }
             
-            function updateCurrentVerseStats() {
+            function updateCurrentVerseStats(incrementTrainedCount = false) {
                 if (!appState.currentVerse) return;
                 const verseId = appState.currentVerse.reference;
                 const stats = getVerseStats(verseId);
-                stats.trainedCount++;
+                if (incrementTrainedCount) {
+                    stats.trainedCount++;
+                }
                 stats.difficulty = parseInt(difficultySlider.value);
+            }
+            
+            function updateDifficultyStatOnSliderChange() {
+                updateCurrentVerseStats(false); 
             }
 
             function getVerseStats(verseReference) {
@@ -634,7 +705,6 @@
                 populateRecentUsers();
             }
 
-            // Edit Screen Logic
             function openEditScreen() {
                 updateVersePoolList();
                 editScreen.classList.remove('hidden');
@@ -676,7 +746,6 @@
                 });
             }
 
-            // Data Persistence
             function saveToBrowser() {
                 const dataToSave = {
                     verses: appState.verses,
@@ -690,7 +759,9 @@
                 const savedData = localStorage.getItem('heartVersesData');
                 if (savedData) {
                     const parsedData = JSON.parse(savedData);
-                    appState.verses = parsedData.verses || appState.verses;
+                    if (parsedData.verses && parsedData.verses.length > 0) {
+                        appState.verses = parsedData.verses;
+                    }
                     appState.userStats = parsedData.userStats || {};
                 }
             }
@@ -715,7 +786,7 @@
                 }
             }
             
-            function handleFileMenu(e) {
+            async function handleFileMenu(e) {
                 const action = e.target.value;
                 switch(action) {
                     case 'save-browser':
@@ -727,8 +798,34 @@
                     case 'import-file':
                         importFileInput.click();
                         break;
+                    case 'load-rooted':
+                        await loadRootedVerses();
+                        break;
                 }
                 e.target.selectedIndex = 0;
+            }
+            
+            async function loadRootedVerses() {
+                const url = "https://adambutcher-007.github.io/HeartVerses/bible_verses-Rooted.json";
+                try {
+                    const response = await fetch(url);
+                    if (!response.ok) throw new Error('Network error');
+                    const data = await response.json();
+                    if (!data.verses || !Array.isArray(data.verses)) throw new Error('Invalid data format');
+                    const existingRefs = new Set(appState.verses.map(v => v.reference));
+                    let addedCount = 0;
+                    data.verses.forEach(verse => {
+                        if (!existingRefs.has(verse.reference)) {
+                            appState.verses.push(verse);
+                            addedCount++;
+                        }
+                    });
+                    updateVersePoolList();
+                    showNotification(`Added ${addedCount} new verses from Rooted collection.`);
+                } catch (error) {
+                    showNotification("Failed to load Rooted verses.", true);
+                    console.error("Error loading Rooted verses:", error);
+                }
             }
             
             function exportToFile() {
