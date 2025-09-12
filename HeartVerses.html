@@ -416,6 +416,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             const appState = {
                 currentUser: null,
+                isFirstEverVerse: false,
                 verses: [],
                 userStats: {},
                 currentVerse: null,
@@ -423,6 +424,16 @@
                 sessionCount: 0,
                 difficultyPercentages: { 1: 0.05, 2: 0.10, 3: 0.20, 4: 0.30, 5: 0.40, 6: 0.50, 7: 1.0 }
             };
+
+            const encouragementPhrases = [
+                "Congratulations, <name>!", "Seems like you've really got that one!", "Terrific!",
+                "Jesus saw that, <name>, good job!", "Well done, good and faithful servant!", "Want to increase the difficulty?",
+                "Hey, no using your Bible! ...Just kidding!", "Another step toward memorization!",
+                "I just heard your brain grow a little, <name>!", "You are a person after God's own heart!",
+                "Keep it up, <name>!", "Great job! Do you have time for another?", "Marvelous!",
+                "I'm speechless! Just kidding.", "You've certainly stored THAT word up in your heart!",
+                "May that word dwell in you, richly.", "You're good at this, <name>!"
+            ];
 
             // DOM Elements
             const challengeScreen = document.getElementById('challenge-screen');
@@ -470,12 +481,12 @@
                 
                 startBtn.addEventListener('click', startChallenge);
                 settingsBtn.addEventListener('click', openEditScreen);
-                closeEditScreenBtn.addEventListener('click', () => editScreen.classList.add('hidden'));
+                closeEditScreenBtn.addEventListener('click', closeEditScreen);
                 addVerseBtn.addEventListener('click', addCustomVerse);
                 fileMenu.addEventListener('change', handleFileMenu);
                 importFileInput.addEventListener('change', importFromFile);
                 nextVerseBtn.addEventListener('click', nextVerse);
-                speakVerseBtn.addEventListener('click', speakVerse);
+                speakVerseBtn.addEventListener('click', () => speak(appState.currentVerse.text));
                 doneBtn.addEventListener('click', showStats);
                 closeStatsScreenBtn.addEventListener('click', returnToUserScreen);
                 typingInput.addEventListener('input', handleTyping);
@@ -484,6 +495,14 @@
 
                 startBtn.disabled = false;
                 startBtn.textContent = "Lay up God's words in my heart";
+            }
+
+            function speak(text, cancelPrevious = true) {
+                if (cancelPrevious) {
+                    speechSynthesis.cancel();
+                }
+                const utterance = new SpeechSynthesisUtterance(text);
+                speechSynthesis.speak(utterance);
             }
 
             function showNotification(message, isError = false) {
@@ -508,14 +527,10 @@
                     const data = await response.json();
                     if (data && data.verses) {
                         appState.verses = data.verses;
-                        console.log('Successfully loaded verses from URL.');
-                    } else {
-                        throw new Error('Invalid JSON structure from URL');
-                    }
+                    } else { throw new Error('Invalid JSON structure'); }
                 } catch (error) {
                     console.error('Could not load verses from URL, loading default verses.', error);
-                    const initialJson = { "verses": [ { "reference": "John 14:6", "translation": "ESV", "text": "Jesus said to him, \"I am the way, and the truth, and the life. No one comes to the Father except through me.\"" }, { "reference": "Hebrews 4:15", "translation": "ESV", "text": "For we do not have a high priest who is unable to sympathize with our weaknesses, but one who in every respect has been tempted as we are, yet without sin." } ] };
-                    appState.verses = initialJson.verses;
+                    appState.verses = [ { "reference": "John 14:6", "translation": "ESV", "text": "Jesus said to him, \"I am the way, and the truth, and the life. No one comes to the Father except through me.\"" }, { "reference": "Hebrews 4:15", "translation": "ESV", "text": "For we do not have a high priest who is unable to sympathize with our weaknesses, but one who in every respect has been tempted as we are, yet without sin." } ];
                 }
             }
             
@@ -528,9 +543,12 @@
                 appState.currentUser = selectedUser;
                 if (!appState.userStats[appState.currentUser]) {
                     appState.userStats[appState.currentUser] = {};
-                    updateRecentUsers();
                 }
                 
+                // Check if user is brand new (has no stats for any verse)
+                appState.isFirstEverVerse = Object.keys(appState.userStats[appState.currentUser]).length === 0;
+
+                updateRecentUsers();
                 userScreen.classList.add('hidden');
                 challengeScreen.classList.remove('hidden');
                 appState.sessionCount = 0;
@@ -584,6 +602,10 @@
                 renderVerseDisplay();
                 updateSessionCounter(true);
                 typingInput.focus();
+
+                if (appState.isFirstEverVerse) {
+                    speak("Beginner's Tutorial: In the lower box, type out the following verse. Some words have been hidden to help you grow. When all words have been correctly typed, you'll be presented with more options.");
+                }
             }
 
             function renderVerseDisplay() {
@@ -614,9 +636,7 @@
                                     displayChar = '*';
                                     charClass = 'incorrect';
                                 }
-                            } else {
-                                displayChar = '_';
-                            }
+                            } else { displayChar = '_'; }
                         } else {
                              displayChar = originalChar;
                              if (charCounter < typedText.length) {
@@ -642,15 +662,17 @@
                 typingInput.disabled = true;
                 updateCurrentVerseStats(true);
                 completionControls.classList.remove('hidden');
-                const utterance = new SpeechSynthesisUtterance(`Congratulations ${appState.currentUser}!`);
-                speechSynthesis.speak(utterance);
-            }
 
-            function speakVerse() {
-                if (!appState.currentVerse) return;
-                speechSynthesis.cancel();
-                const utterance = new SpeechSynthesisUtterance(appState.currentVerse.text);
-                speechSynthesis.speak(utterance);
+                if (appState.isFirstEverVerse) {
+                    const text = `Congratulations, ${appState.currentUser}! Now use the buttons below to hear the verse, increase the difficulty for this verse, continue to the next verse, or be done with this session and view your training stats.`;
+                    speak(text);
+                    appState.isFirstEverVerse = false; // Tutorial is now over
+                } else {
+                    const randomIndex = Math.floor(Math.random() * encouragementPhrases.length);
+                    const phrase = encouragementPhrases[randomIndex].replace(/<name>/g, appState.currentUser);
+                    speak(phrase);
+                }
+                saveToBrowser();
             }
             
             function updateCurrentVerseStats(incrementTrainedCount = false) {
@@ -665,6 +687,7 @@
             
             function updateDifficultyStatOnSliderChange() {
                 updateCurrentVerseStats(false); 
+                saveToBrowser();
             }
 
             function getVerseStats(verseReference) {
@@ -710,6 +733,11 @@
                 editScreen.classList.remove('hidden');
             }
 
+            function closeEditScreen() {
+                editScreen.classList.add('hidden');
+                saveToBrowser();
+            }
+
             function addCustomVerse() {
                 const reference = customRefInput.value.trim();
                 const translation = customTransInput.value.trim();
@@ -747,12 +775,17 @@
             }
 
             function saveToBrowser() {
-                const dataToSave = {
-                    verses: appState.verses,
-                    userStats: appState.userStats
-                };
-                localStorage.setItem('heartVersesData', JSON.stringify(dataToSave));
-                showNotification("Data saved to browser!");
+                try {
+                    const dataToSave = {
+                        verses: appState.verses,
+                        userStats: appState.userStats
+                    };
+                    localStorage.setItem('heartVersesData', JSON.stringify(dataToSave));
+                    console.log('Autosaved data to browser.');
+                } catch (error) {
+                    console.error('Failed to save data to browser:', error);
+                    showNotification('Could not save progress.', true);
+                }
             }
 
             function loadFromBrowser() {
@@ -791,6 +824,7 @@
                 switch(action) {
                     case 'save-browser':
                         saveToBrowser();
+                        showNotification("Data saved to browser!");
                         break;
                     case 'export-file':
                         exportToFile();
@@ -829,13 +863,10 @@
             }
             
             function exportToFile() {
-                const dataToSave = {
-                    verses: appState.verses,
-                    userStats: appState.userStats
-                };
-                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dataToSave, null, 2));
+                saveToBrowser(); // Ensure latest data is exported
+                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(localStorage.getItem('heartVersesData'));
                 const downloadAnchorNode = document.createElement('a');
-                downloadAnchorNode.setAttribute("href",     dataStr);
+                downloadAnchorNode.setAttribute("href", dataStr);
                 downloadAnchorNode.setAttribute("download", "heart_verses_backup.json");
                 document.body.appendChild(downloadAnchorNode);
                 downloadAnchorNode.click();
@@ -854,6 +885,7 @@
                         if(importedData.userStats) appState.userStats = importedData.userStats;
                         populateRecentUsers();
                         updateVersePoolList();
+                        saveToBrowser();
                         showNotification("Data imported successfully!");
                     } catch (error) {
                         showNotification("Error reading file. Ensure it is a valid JSON.", true);
