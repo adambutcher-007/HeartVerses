@@ -88,6 +88,28 @@
             font-size: 0.9em;
             margin-top: 40px;
         }
+        
+        /* Video Link Button */
+        .video-link {
+            display: block;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .video-link a {
+            background-color: #cc181e;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transition: transform 0.2s;
+        }
+
+        .video-link a:hover {
+            transform: translateY(-2px);
+        }
 
         input, select, textarea {
             background-color: #222;
@@ -315,6 +337,10 @@
             <br><br>
             <button id="start-btn" class="button" disabled>Loading...</button>
             <p id="volume-warning">🔊 Make sure your volume is at a good level before proceeding!</p>
+        </div>
+        <!-- Video Link -->
+        <div class="video-link">
+            <a href="https://www.youtube.com/watch?v=rg6BI7_Frm4" target="_blank">▶ Watch the Tutorial on YouTube</a>
         </div>
 
         <!-- Edit Screen (Modal) -->
