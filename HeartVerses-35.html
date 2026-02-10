@@ -8,7 +8,7 @@
     <script src="https://www.blueletterbible.org/assets/scripts/blbToolTip/BLB_ScriptTagger-min.js" type="text/javascript"></script>
     <script type="text/javascript">
         BLB.Tagger.Translation = 'ESV';
-        BLB.Tagger.HyperLinks = 'all'; 
+        BLB.Tagger.HyperLinks = 'hover'; 
         BLB.Tagger.HideTanslationAbbrev = false;
         BLB.Tagger.TargetNewWindow = true;
         BLB.Tagger.Style = 'par'; 
@@ -558,7 +558,7 @@
                 customTransInput.value = translation;
 
                 // Reload the ScriptTagger to force it to scan the new content
-                setTimeout(reloadBLBScript, 50);
+                BLB.Tagger.pageInit();
             }
 
             function reloadBLBScript() {
