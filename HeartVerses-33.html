@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heart Verses</title>
+    <style>
+        :root {
+            --primary-glow: #00ff00;
+            --secondary-glow: #ff00ff;
+            --tertiary-glow: #00ffff;
+            --correct-glow: #ffff00;
+            --incorrect-glow: #ff0000;
+            --background-color: #000000;
+            --text-color: #ffffff;
+            --input-text-color: #00ffff;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            overscroll-behavior: none;
+        }
+
+        .app-container {
+            max-width: 800px;
+            margin: auto;
+            text-align: center;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .button {
+            background-color: var(--primary-glow);
+            color: var(--background-color);
+            border: none;
+            border-radius: 15px;
+            padding: 15px 30px;
+            font-size: 1.5em;
+            cursor: pointer;
+            text-shadow: 0 0 10px var(--primary-glow), 0 0 20px var(--primary-glow), 0 0 30px var(--primary-glow);
+            box-shadow: 0 0 10px var(--primary-glow), 0 0 20px var(--primary-glow);
+            transition: all 0.3s ease;
+        }
+        
+        .button:disabled {
+            background-color: #444;
+            color: #888;
+            cursor: not-allowed;
+            text-shadow: none;
+            box-shadow: none;
+        }
+
+        .button:hover {
+            transform: scale(1.05);
+        }
+
+        .small-button {
+            font-size: 1.2em;
+            padding: 10px 20px;
+        }
+
+        .icon-button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5em;
+            padding: 5px 10px;
+            cursor: pointer;
+            text-shadow: 0 0 8px var(--primary-glow);
+        }
+        
+        #user-screen p {
+            font-style: italic;
+            color: #ccc;
+            max-width: 600px;
+            margin: 20px auto 30px auto;
+            line-height: 1.5;
+        }
+
+        #volume-warning {
+            color: #888;
+            font-size: 0.9em;
+            margin-top: 40px;
+        }
+        
+        /* Video Link Button */
+        .video-link {
+            display: block;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .video-link a {
+            background-color: #cc181e;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transition: transform 0.2s;
+        }
+
+        .video-link a:hover {
+            transform: translateY(-2px);
+        }
+
+        input, select, textarea {
+            background-color: #222;
+            color: var(--text-color);
+            border: 2px solid var(--primary-glow);
+            border-radius: 10px;
+            padding: 10px;
+            margin: 10px;
+            font-size: 1em;
+            box-shadow: 0 0 5px var(--primary-glow);
+        }
+        
+        #recent-users-select {
+            min-width: 240px;
+            vertical-align: middle;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .top-bar-item {
+            font-size: 1.5em;
+            text-shadow: 0 0 5px var(--secondary-glow);
+        }
+
+        #session-counter {
+            cursor: pointer;
+        }
+
+        #current-user-display {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.8em;
+            font-weight: bold;
+            color: var(--tertiary-glow);
+            text-shadow: 0 0 8px var(--tertiary-glow);
+        }
+
+        .settings-button {
+            cursor: pointer;
+            font-size: 2em;
+        }
+
+        .verse-reference {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px var(--tertiary-glow);
+        }
+
+        .verse-display-container {
+            border: 2px solid var(--tertiary-glow);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            min-height: 150px;
+            box-shadow: 0 0 10px var(--tertiary-glow);
+        }
+
+        .verse-display {
+            font-size: 1.5em;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+
+        .verse-display span > span {
+            transition: color 0.2s ease;
+        }
+
+        .decorative-line {
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--secondary-glow), transparent);
+            margin: 30px 0;
+            border: none;
+        }
+
+        .typing-area {
+            width: 100%;
+            height: 150px;
+            background-color: #111;
+            border: 2px solid var(--tertiary-glow);
+            border-radius: 15px;
+            color: var(--input-text-color);
+            font-size: 1.5em;
+            padding: 20px;
+            box-sizing: border-box;
+            box-shadow: 0 0 10px var(--tertiary-glow);
+            resize: none;
+        }
+
+        .correct { color: var(--secondary-glow) !important; text-shadow: 0 0 5px var(--secondary-glow); }
+        .revealed { color: var(--correct-glow) !important; text-shadow: 0 0 5px var(--correct-glow); }
+        .incorrect { color: var(--incorrect-glow) !important; text-decoration: underline; text-shadow: 0 0 5px var(--incorrect-glow); }
+
+        .completion-controls {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .difficulty-slider-container { display: flex; align-items: center; gap: 10px; }
+        #difficulty-slider { -webkit-appearance: none; width: 150px; height: 10px; border-radius: 5px; background: #333; outline: none; opacity: 0.7; transition: opacity .2s; box-shadow: inset 0 0 5px var(--secondary-glow); }
+        #difficulty-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 25px; height: 25px; border-radius: 50%; background: var(--secondary-glow); cursor: pointer; box-shadow: 0 0 10px var(--secondary-glow); }
+        #difficulty-slider::-moz-range-thumb { width: 25px; height: 25px; border-radius: 50%; background: var(--secondary-glow); cursor: pointer; }
+
+        /* Modals */
+        .modal { position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.8); display: flex; justify-content: center; align-items: center; }
+        .modal-content { background-color: #1a1a1a; padding: 30px; border-radius: 20px; border: 2px solid var(--primary-glow); box-shadow: 0 0 20px var(--primary-glow); width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; }
+        .close-button { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
+        .verse-list { list-style: none; padding: 0; }
+
+        .verse-list-item {
+            background-color: #222;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            text-align: left;
+            border-left: 5px solid var(--tertiary-glow);
+            position: relative;
+        }
+        
+        .verse-list-item .delete-button {
+            position: absolute;
+            top: 5px;
+            right: 10px;
+            background-color: var(--incorrect-glow);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1em;
+            line-height: 1;
+            width: 24px;
+            height: 24px;
+            font-weight: bold;
+            padding: 0;
+            box-shadow: 0 0 5px var(--incorrect-glow);
+        }
+
+        .verse-list-item .add-button {
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+            background-color: var(--primary-glow);
+            color: var(--background-color);
+            border: none;
+            border-radius: 999px;
+            padding: 8px 20px;
+            font-size: 1.2em;
+            cursor: pointer;
+            font-weight: bold;
+            text-shadow: 0 0 5px var(--primary-glow), 0 0 10px var(--primary-glow), 0 0 15px var(--primary-glow);
+            box-shadow: 0 0 5px var(--primary-glow), 0 0 10px var(--primary-glow), 0 0 15px var(--primary-glow);
+            transition: transform 0.3s ease;
+        }
+
+        .add-button:hover {
+            transform: translateY(-50%) scale(1.05);
+        }
+        
+        .verse-list-item p {
+            padding-right: 40px; /* Space for the delete button */
+        }
+
+        #memory-verses-list .verse-list-item strong {
+            display: block;
+            padding-right: 100px;
+        }
+        
+        .file-menu-container { font-size: 1.17em; display: inline-block; }
+        .file-menu-container label { font-size: 1em; vertical-align: middle; }
+        .file-menu-container select { font-size: 0.8em; vertical-align: middle; }
+
+        /* Notification */
+        .notification { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background-color: #222; color: white; padding: 15px 30px; border-radius: 10px; z-index: 1000; opacity: 0; visibility: hidden; transition: opacity 0.5s, visibility 0.5s, bottom 0.5s; border: 2px solid var(--primary-glow); box-shadow: 0 0 10px var(--primary-glow); text-shadow: 0 0 5px var(--primary-glow); }
+        .notification.show { opacity: 1; visibility: visible; bottom: 30px; }
+        .notification.error { border-color: var(--incorrect-glow); box-shadow: 0 0 10px var(--incorrect-glow); text-shadow: 0 0 5px var(--incorrect-glow); }
+    </style>
+</head>
+<body>
+
+    <div id="app" class="app-container">
+
+        <!-- Main Challenge Screen -->
+        <div id="challenge-screen" class="hidden">
+            <div class="top-bar">
+                <div id="session-counter" class="top-bar-item">📖 0</div>
+                <div id="current-user-display"></div>
+                <div id="settings-btn" class="settings-button">⚙️</div>
+            </div>
+            <div id="verse-reference-display" class="verse-reference"></div>
+            <div class="verse-display-container">
+                <div id="verse-text-display" class="verse-display"></div>
+            </div>
+            <hr class="decorative-line">
+            <textarea id="typing-input" class="typing-area" autocorrect="off" autocapitalize="none" spellcheck="false"></textarea>
+            <div id="completion-controls" class="completion-controls hidden">
+                <button id="next-verse-btn" class="button small-button">Next</button>
+                <button id="speak-verse-btn" class="icon-button">🔊</button>
+                <div class="difficulty-slider-container">
+                    <span>Difficulty: </span>
+                    <input type="range" min="1" max="7" value="1" id="difficulty-slider">
+                    <span id="difficulty-level-label">1</span>
+                </div>
+                <button id="done-btn" class="button small-button">Done</button>
+            </div>
+        </div>
+
+        <!-- User Selection Screen -->
+        <div id="user-screen">
+            <h1>Heart Verses</h1>
+            <p>Heart Verses strives to help us memorize verses by utilizing multiple learning styles: Reading, Writing, Auditory, and Kinesthetic. Click the button to begin training.</p>
+            <input type="text" id="name-input" placeholder="Enter your first name">
+            <select id="recent-users-select"></select>
+            <br><br>
+            <button id="start-btn" class="button" disabled>Loading...</button>
+            <p id="volume-warning">🔊 Make sure your volume is at a good level before proceeding!</p>
+        </div>
+        <!-- Video Link -->
+        <div class="video-link">
+            <br><br>
+            <a href="https://www.youtube.com/watch?v=rg6BI7_Frm4" target="_blank">▶ Watch the Tutorial on YouTube</a>
+        </div>
+
+        <!-- Edit Screen (Modal) -->
+        <div id="edit-screen" class="modal hidden">
+            <div class="modal-content">
+                <span id="close-edit-screen" class="close-button">&times;</span>
+                <h2>Edit Verses</h2>
+                <hr class="decorative-line">
+                <h3>Add a Verse</h3>
+                <div style="text-align: center; margin-bottom: 15px;">
+                     <button id="open-lookup-btn" class="button small-button" style="width: fit-content; display: inline-block; background-color: var(--tertiary-glow); color: #000;">🔍 Search</button>
+                </div>
+                <input type="text" id="custom-ref-input" placeholder="Reference (e.g., John 3:16)">
+                <input type="text" id="custom-trans-input" placeholder="Translation (e.g., NIV)">
+                <textarea id="custom-text-input" placeholder="Verse Text" rows="4" style="width: 95%;"></textarea>
+                <button id="add-verse-btn" class="button small-button">Add Verse</button>
+                <hr class="decorative-line">
+                <h3>Verse Pool</h3>
+                 <div class="file-menu-container">
+                    <label for="file-menu" class="settings-button">💾</label>
+                    <select id="file-menu">
+                        <option>Save/Load</option>
+                        <option value="save-browser">Save All Profiles</option>
+                        <option value="export-file">Export All Profiles</option>
+                        <option value="import-file">Import Profiles</option>
+                        <option value="add-memory-verses">Add Memory Verses...</option>
+                    </select>
+                    <input type="file" id="import-file-input" class="hidden" accept=".json">
+                </div>
+                <ul id="verse-pool-list" class="verse-list"></ul>
+            </div>
+        </div>
+
+        <!-- Lookup Screen (Modal) -->
+        <div id="lookup-screen" class="modal hidden">
+            <div class="modal-content">
+                <span id="close-lookup-screen" class="close-button">&times;</span>
+                <h2>Lookup Verse</h2>
+                <hr class="decorative-line">
+                <p style="color: #ccc; font-style: italic;">Powered by Bible Gateway (via Proxy)</p>
+                <input type="text" id="lookup-ref-input" placeholder="Reference (e.g. John 3:16)">
+                <select id="lookup-trans-select" style="width: 95%;">
+                    <option value="NIV">New International Version (NIV)</option>
+                    <option value="ESV">English Standard Version (ESV)</option>
+                    <option value="KJV">King James Version (KJV)</option>
+                    <option value="NKJV">New King James Version (NKJV)</option>
+                    <option value="NASB">New American Standard Bible (NASB)</option>
+                    <option value="NLT">New Living Translation (NLT)</option>
+                    <option value="CSB">Christian Standard Bible (CSB)</option>
+                    <option value="MSG">The Message (MSG)</option>
+                    <option value="AMP">Amplified Bible (AMP)</option>
+                    <option value="NRSV">New Revised Standard Version (NRSV)</option>
+                    <option value="WEB">World English Bible (WEB)</option>
+                </select>
+                <br><br>
+                <button id="perform-lookup-btn" class="button small-button">Search & Fill</button>
+            </div>
+        </div>
+
+        <!-- Stats Screen (Modal) -->
+        <div id="stats-screen" class="modal hidden">
+            <div class="modal-content">
+                <span id="close-stats-screen" class="close-button">&times;</span>
+                <h2 id="stats-title"></h2>
+                <hr class="decorative-line">
+                <ul id="stats-list" class="verse-list"></ul>
+            </div>
+        </div>
+
+        <!-- Memory Verses Modal -->
+        <div id="memory-verses-modal" class="modal hidden">
+            <div class="modal-content">
+                <span id="close-memory-verses" class="close-button">&times;</span>
+                <h2>Add Memory Verses</h2>
+                <hr class="decorative-line">
+                <ul id="memory-verses-list" class="verse-list"></ul>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="notification-popup" class="notification"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const appState = {
+                currentUser: null, isFirstEverVerse: false, verses: [], userStats: {},
+                userSettings: { hasVisitedSettings: false }, currentVerse: null, currentVerseHiddenIndices: [],
+                sessionCount: 0,
+                difficultyPercentages: { 1: 0.05, 2: 0.10, 3: 0.20, 4: 0.30, 5: 0.40, 6: 0.50, 7: 1.0 }
+            };
+            const encouragementPhrases = [ "Congratulations, <name>!", "Seems like you've really got that one!", "Terrific!", "Jesus saw that, <name>, good job!", "Well done, good and faithful servant!", "Want to increase the difficulty?", "Hey, no using your Bible! ...Just kidding!", "Another step toward memorization!", "I just heard your brain grow a little, <name>!", "You are a person after God's own heart!", "Keep it up, <name>!", "Great job! Do you have time for another?", "Marvelous!", "I'm speechless! Just kidding.", "You've certainly stored THAT word up in your heart!", "May that word dwell in you, richly.", "You're good at this, <name>!", "That was one of my favorites, too!", "Jesus couldn't have typed it better himself!", "This is a new milestone in your training, congrats <name>!" ];
+            
+            let isSessionEnding = false;
+
+            const challengeScreen = document.getElementById('challenge-screen'), userScreen = document.getElementById('user-screen'), editScreen = document.getElementById('edit-screen'), statsScreen = document.getElementById('stats-screen'), startBtn = document.getElementById('start-btn'), nameInput = document.getElementById('name-input'), recentUsersSelect = document.getElementById('recent-users-select'), sessionCounter = document.getElementById('session-counter'), currentUserDisplay = document.getElementById('current-user-display'), settingsBtn = document.getElementById('settings-btn'), verseRefDisplay = document.getElementById('verse-reference-display'), verseTextDisplay = document.getElementById('verse-text-display'), typingInput = document.getElementById('typing-input'), completionControls = document.getElementById('completion-controls'), nextVerseBtn = document.getElementById('next-verse-btn'), speakVerseBtn = document.getElementById('speak-verse-btn'), doneBtn = document.getElementById('done-btn'), difficultySlider = document.getElementById('difficulty-slider'), difficultyLevelLabel = document.getElementById('difficulty-level-label'), closeEditScreenBtn = document.getElementById('close-edit-screen'), addVerseBtn = document.getElementById('add-verse-btn'), customRefInput = document.getElementById('custom-ref-input'), customTransInput = document.getElementById('custom-trans-input'), customTextInput = document.getElementById('custom-text-input'), versePoolList = document.getElementById('verse-pool-list'), fileMenu = document.getElementById('file-menu'), importFileInput = document.getElementById('import-file-input'), closeStatsScreenBtn = document.getElementById('close-stats-screen'), statsTitle = document.getElementById('stats-title'), statsList = document.getElementById('stats-list'), notificationPopup = document.getElementById('notification-popup'), memoryVersesModal = document.getElementById('memory-verses-modal'), closeMemoryVersesBtn = document.getElementById('close-memory-verses');
+            
+            // Lookup elements
+            const openLookupBtn = document.getElementById('open-lookup-btn');
+            const lookupScreen = document.getElementById('lookup-screen');
+            const closeLookupScreenBtn = document.getElementById('close-lookup-screen');
+            const lookupRefInput = document.getElementById('lookup-ref-input');
+            const lookupTransSelect = document.getElementById('lookup-trans-select');
+            const performLookupBtn = document.getElementById('perform-lookup-btn');
+
+            let notificationTimeout;
+
+            async function initializeApp() {
+                populateRecentUsers();
+                startBtn.addEventListener('click', startChallenge);
+                settingsBtn.addEventListener('click', openEditScreen);
+                closeEditScreenBtn.addEventListener('click', closeEditScreen);
+                addVerseBtn.addEventListener('click', addCustomVerse);
+                fileMenu.addEventListener('change', handleFileMenu);
+                importFileInput.addEventListener('change', importFromFile);
+                nextVerseBtn.addEventListener('click', nextVerse);
+                speakVerseBtn.addEventListener('click', () => speak(appState.currentVerse.text));
+                doneBtn.addEventListener('click', () => { isSessionEnding = true; showStats(); });
+                sessionCounter.addEventListener('click', showStats);
+                closeStatsScreenBtn.addEventListener('click', handleCloseStats);
+                typingInput.addEventListener('input', handleTyping);
+                difficultySlider.addEventListener('input', () => difficultyLevelLabel.textContent = difficultySlider.value);
+                difficultySlider.addEventListener('change', updateDifficultyStatOnSliderChange);
+                closeMemoryVersesBtn.addEventListener('click', () => memoryVersesModal.classList.add('hidden'));
+                
+                // Lookup Listeners
+                openLookupBtn.addEventListener('click', () => lookupScreen.classList.remove('hidden'));
+                closeLookupScreenBtn.addEventListener('click', () => lookupScreen.classList.add('hidden'));
+                performLookupBtn.addEventListener('click', performOnlineLookup);
+
+                startBtn.disabled = false;
+                startBtn.textContent = "Store up God's Word in my heart";
+            }
+
+            async function performOnlineLookup() {
+                const ref = lookupRefInput.value.trim();
+                const translation = lookupTransSelect.value;
+                if (!ref) return showNotification("Please enter a verse reference.", true);
+
+                performLookupBtn.disabled = true;
+                performLookupBtn.textContent = "Searching...";
+
+                // Since Bible Gateway doesn't have a CORS-enabled JSON API, we use a proxy to fetch the page content.
+                // This method is dependent on the proxy (AllOrigins) being active.
+                const bgUrl = `https://www.biblegateway.com/passage/?search=${encodeURIComponent(ref)}&version=${translation}`;
+                const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(bgUrl)}`;
+
+                try {
+                    const response = await fetch(proxyUrl);
+                    if (!response.ok) throw new Error('Network proxy error');
+                    const data = await response.json();
+                    
+                    if (!data.contents) throw new Error('No content returned from proxy');
+
+                    // Parse HTML
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(data.contents, 'text/html');
+
+                    // Bible Gateway typically puts text in class 'passage-text' or 'passage-content'
+                    const contentContainer = doc.querySelector('.passage-text') || doc.querySelector('.passage-content');
+                    
+                    if (!contentContainer) throw new Error('Verse text not found on Bible Gateway page.');
+
+                    // Cleanup: Remove footnotes, cross-refs, and verse numbers for clean memorization text
+                    const cleanupSelectors = ['.crossreference', '.footnote', '.footnotes', '.chapternum', '.versenum'];
+                    cleanupSelectors.forEach(selector => {
+                        const elements = contentContainer.querySelectorAll(selector);
+                        elements.forEach(el => el.remove());
+                    });
+
+                    // Extract text
+                    let text = contentContainer.textContent.trim();
+                    // Clean up extra whitespace/newlines
+                    text = text.replace(/\s+/g, ' ').trim();
+
+                    if (!text) throw new Error('Parsed text is empty.');
+
+                    // Fill fields
+                    // Use the reference found on page if possible (usually in a dropdown or header), otherwise use input
+                    const foundRef = doc.querySelector('.dropdown-display-text') ? doc.querySelector('.dropdown-display-text').textContent : ref;
+
+                    customRefInput.value = foundRef;
+                    customTransInput.value = translation;
+                    customTextInput.value = text;
+
+                    lookupScreen.classList.add('hidden');
+                    showNotification("Verse found! Please review and click 'Add Verse'.");
+
+                } catch (error) {
+                    console.error(error);
+                    showNotification("Error: Could not retrieve text. (Proxy/CORS issue)", true);
+                } finally {
+                    performLookupBtn.disabled = false;
+                    performLookupBtn.textContent = "Search & Fill";
+                }
+            }
+
+            function handleCloseStats() {
+                if (isSessionEnding) {
+                    returnToUserScreen();
+                } else {
+                    statsScreen.classList.add('hidden');
+                }
+                isSessionEnding = false; // Reset flag after action
+            }
+
+            function speak(text, cancelPrevious = true) {
+                if (cancelPrevious) speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                speechSynthesis.speak(utterance);
+            }
+
+            function showNotification(message, isError = false) {
+                clearTimeout(notificationTimeout);
+                notificationPopup.textContent = message;
+                notificationPopup.className = 'notification show';
+                if (isError) notificationPopup.classList.add('error');
+                notificationTimeout = setTimeout(() => { notificationPopup.classList.remove('show'); }, 3000);
+            }
+
+            async function startChallenge() {
+                const selectedUser = nameInput.value.trim() || recentUsersSelect.value;
+                if (!selectedUser) {
+                    showNotification("Please enter or select a name.", true);
+                    return;
+                }
+                appState.currentUser = selectedUser;
+                await loadUserData(selectedUser);
+                appState.isFirstEverVerse = Object.keys(appState.userStats).length === 0;
+                currentUserDisplay.textContent = appState.currentUser;
+                userScreen.classList.add('hidden');
+                challengeScreen.classList.remove('hidden');
+                appState.sessionCount = 0;
+                updateSessionCounter();
+                nextVerse();
+            }
+
+            function nextVerse() {
+                if (appState.verses.length === 0) {
+                    showNotification("No verses in the pool! Add some in the edit screen.", true);
+                    returnToUserScreen();
+                    return;
+                }
+                completionControls.classList.add('hidden');
+                typingInput.value = '';
+                typingInput.disabled = false;
+                appState.currentVerse = appState.verses[Math.floor(Math.random() * appState.verses.length)];
+                const verseId = appState.currentVerse.reference;
+                const stats = getVerseStats(verseId);
+                const difficulty = stats.difficulty;
+                const hidePercentage = appState.difficultyPercentages[difficulty];
+                difficultySlider.value = difficulty;
+                difficultyLevelLabel.textContent = difficulty;
+                verseRefDisplay.textContent = `${appState.currentVerse.reference} (${appState.currentVerse.translation})`;
+                const originalText = appState.currentVerse.text;
+                const words = originalText.split(/(\s+)/);
+                let wordsToHideIndices = [];
+                let wordCount = words.filter(w => w.trim() !== '').length;
+                let numToHide = Math.ceil(wordCount * hidePercentage);
+                if (difficulty < 7) {
+                    while(wordsToHideIndices.length < numToHide && wordsToHideIndices.length < wordCount) {
+                        let randomIndex = Math.floor(Math.random() * words.length);
+                        if (words[randomIndex].trim() !== '' && !wordsToHideIndices.includes(randomIndex)) {
+                            wordsToHideIndices.push(randomIndex);
+                        }
+                    }
+                } else {
+                    words.forEach((word, index) => { if(word.trim() !== '') wordsToHideIndices.push(index); });
+                }
+                appState.currentVerseHiddenIndices = wordsToHideIndices;
+                renderVerseDisplay();
+                updateSessionCounter(true);
+                typingInput.focus();
+                if (appState.isFirstEverVerse) {
+                    speak("Beginner's Tutorial: In the lower box, type out the following verse. Some words have been hidden to help you grow. When all words have been correctly typed, you'll be presented with more options.");
+                }
+            }
+
+            function renderVerseDisplay() {
+                const originalText = appState.currentVerse.text;
+                const typedText = typingInput.value;
+                const words = originalText.split(/(\s+)/);
+                const hiddenIndices = appState.currentVerseHiddenIndices;
+                let newHtml = '';
+                let charCounter = 0;
+                words.forEach((word, wordIndex) => {
+                    if (word === '') return;
+                    const isHiddenWord = hiddenIndices.includes(wordIndex);
+                    let wordHtml = '';
+                    for (let i = 0; i < word.length; i++) {
+                        const originalChar = word[i];
+                        let displayChar = '';
+                        let charClass = '';
+                        if (isHiddenWord) {
+                            if (charCounter < typedText.length) {
+                                if (typedText[charCounter] === originalChar) {
+                                    displayChar = originalChar;
+                                    charClass = 'revealed';
+                                } else {
+                                    displayChar = '*';
+                                    charClass = 'incorrect';
+                                }
+                            } else { displayChar = '_'; }
+                        } else {
+                             displayChar = originalChar;
+                             if (charCounter < typedText.length) {
+                                 charClass = typedText[charCounter] === originalChar ? 'correct' : 'incorrect';
+                             }
+                        }
+                        wordHtml += `<span class="${charClass}">${displayChar}</span>`;
+                        charCounter++;
+                    }
+                    newHtml += `<span>${wordHtml}</span>`;
+                });
+                verseTextDisplay.innerHTML = newHtml;
+            }
+
+            function handleTyping() {
+                renderVerseDisplay();
+                if (typingInput.value === appState.currentVerse.text) {
+                    completeVerse();
+                }
+            }
+            
+            function completeVerse() {
+                typingInput.disabled = true;
+                updateCurrentVerseStats(true);
+                completionControls.classList.remove('hidden');
+                if (appState.isFirstEverVerse) {
+                    const text = `Congratulations, ${appState.currentUser}! Now use the buttons below to hear the verse, increase the difficulty for this verse, continue to the next verse, or be done with this session and view your training stats.`;
+                    speak(text);
+                    appState.isFirstEverVerse = false;
+                } else {
+                    const randomIndex = Math.floor(Math.random() * encouragementPhrases.length);
+                    const phrase = encouragementPhrases[randomIndex].replace(/<name>/g, appState.currentUser);
+                    speak(phrase);
+                }
+                saveToBrowser();
+            }
+            
+            function updateCurrentVerseStats(incrementTrainedCount = false) {
+                if (!appState.currentVerse) return;
+                const verseId = appState.currentVerse.reference;
+                const stats = getVerseStats(verseId);
+                if (incrementTrainedCount) stats.trainedCount++;
+                stats.difficulty = parseInt(difficultySlider.value);
+            }
+            
+            function updateDifficultyStatOnSliderChange() {
+                updateCurrentVerseStats(false); 
+                saveToBrowser();
+            }
+
+            function getVerseStats(verseReference) {
+                if (!appState.userStats[verseReference]) {
+                    appState.userStats[verseReference] = { trainedCount: 0, difficulty: 1 };
+                }
+                return appState.userStats[verseReference];
+            }
+            
+            function updateSessionCounter(increment = false) {
+                if(increment) appState.sessionCount++;
+                sessionCounter.textContent = `📖 ${appState.sessionCount}`;
+            }
+
+            function showStats() {
+                if (!appState.currentUser) return;
+                statsTitle.textContent = `${appState.currentUser}'s Training Stats`;
+                statsList.innerHTML = '';
+                const sortedRefs = Object.keys(appState.userStats).sort();
+                for (const verseRef of sortedRefs) {
+                    const stat = appState.userStats[verseRef];
+                    const li = document.createElement('li');
+                    li.className = 'verse-list-item';
+                    li.innerHTML = `<strong>${verseRef}</strong><br>Trained: ${stat.trainedCount} times | Current Difficulty: ${stat.difficulty}`;
+                    statsList.appendChild(li);
+                }
+                statsScreen.classList.remove('hidden');
+            }
+            
+            function returnToUserScreen() {
+                statsScreen.classList.add('hidden');
+                challengeScreen.classList.add('hidden');
+                userScreen.classList.remove('hidden');
+                nameInput.value = '';
+                currentUserDisplay.textContent = '';
+                appState.currentUser = null;
+                appState.verses = [];
+                appState.userStats = {};
+                populateRecentUsers();
+            }
+
+            function openEditScreen() {
+                if (!appState.userSettings.hasVisitedSettings) {
+                    speak("This is the place to add custom verses, export your progress to a file, import an existing progress file, or load lists of memory verses.");
+                    appState.userSettings.hasVisitedSettings = true;
+                    saveToBrowser();
+                }
+                updateVersePoolList();
+                editScreen.classList.remove('hidden');
+            }
+
+            function closeEditScreen() {
+                editScreen.classList.add('hidden');
+                saveToBrowser();
+            }
+
+            function addCustomVerse() {
+                const reference = customRefInput.value.trim();
+                const translation = customTransInput.value.trim();
+                const text = customTextInput.value.trim();
+                if (reference && translation && text) {
+                    appState.verses.push({ reference, translation, text });
+                    customRefInput.value = ''; customTransInput.value = ''; customTextInput.value = '';
+                    updateVersePoolList();
+                } else {
+                    showNotification("Please fill all fields to add a verse.", true);
+                }
+            }
+
+            function updateVersePoolList() {
+                versePoolList.innerHTML = '';
+                appState.verses.forEach((verse, index) => {
+                    const li = document.createElement('li');
+                    li.className = 'verse-list-item';
+                    li.innerHTML = `<strong>${verse.reference} (${verse.translation})</strong><p>${verse.text}</p><button class="delete-button" data-index="${index}">x</button>`;
+                    versePoolList.appendChild(li);
+                });
+                versePoolList.querySelectorAll('.delete-button').forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        const indexToRemove = parseInt(e.target.dataset.index);
+                        appState.verses.splice(indexToRemove, 1);
+                        updateVersePoolList();
+                    });
+                });
+            }
+
+            function saveToBrowser() {
+                if (!appState.currentUser) return;
+                try {
+                    const dataToSave = { verses: appState.verses, userStats: appState.userStats, userSettings: appState.userSettings };
+                    localStorage.setItem(`heartVersesData_${appState.currentUser}`, JSON.stringify(dataToSave));
+                } catch (error) {
+                    console.error('Failed to save data:', error);
+                    showNotification('Could not save progress.', true);
+                }
+            }
+
+            async function loadUserData(username) {
+                const savedData = localStorage.getItem(`heartVersesData_${username}`);
+                if (savedData) {
+                    const data = JSON.parse(savedData);
+                    appState.verses = data.verses || [];
+                    appState.userStats = data.userStats || {};
+                    appState.userSettings = data.userSettings || { hasVisitedSettings: false };
+                    if (appState.verses.length === 0) await loadDefaultVerses();
+                } else {
+                    appState.userStats = {}; appState.userSettings = { hasVisitedSettings: false };
+                    await loadDefaultVerses();
+                    saveToBrowser();
+                }
+            }
+            
+            async function loadDefaultVerses() {
+                 const url = "https://adambutcher-007.github.io/HeartVerses/bible_verses.json";
+                 try {
+                    const response = await fetch(url);
+                    if (!response.ok) throw new Error('Network error');
+                    const data = await response.json();
+                    appState.verses = data.verses || [];
+                 } catch (error) {
+                    console.error('Failed to load default verses:', error);
+                    appState.verses = [ { "reference": "John 14:6", "translation": "ESV", "text": "Jesus said to him, \"I am the way, and the truth, and the life. No one comes to the Father except through me.\"" } ];
+                 }
+            }
+
+            function populateRecentUsers() {
+                recentUsersSelect.innerHTML = '<option value="">Select recent user</option>';
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key.startsWith('heartVersesData_')) {
+                        const user = key.substring('heartVersesData_'.length);
+                        const option = document.createElement('option');
+                        option.value = user;
+                        option.textContent = user;
+                        recentUsersSelect.appendChild(option);
+                    }
+                }
+            }
+            
+            async function handleFileMenu(e) {
+                const action = e.target.value;
+                switch(action) {
+                    case 'save-browser': saveToBrowser(); showNotification("Data saved!"); break;
+                    case 'export-file': exportToFile(); break;
+                    case 'import-file': importFileInput.click(); break;
+                    case 'load-rooted': await loadRootedVerses(); break;
+                    case 'add-memory-verses': await loadMemoryVersesLists(); break;
+                }
+                e.target.selectedIndex = 0;
+            }
+            
+            async function loadRootedVerses() {
+                const url = "https://adambutcher-007.github.io/HeartVerses/bible_verses-Rooted.json";
+                try {
+                    const response = await fetch(url);
+                    if (!response.ok) throw new Error('Network error');
+                    const data = await response.json();
+                    if (!data.verses || !Array.isArray(data.verses)) throw new Error('Invalid data format');
+                    const existingRefs = new Set(appState.verses.map(v => v.reference));
+                    let addedCount = 0;
+                    data.verses.forEach(verse => {
+                        if (!existingRefs.has(verse.reference)) { appState.verses.push(verse); addedCount++; }
+                    });
+                    updateVersePoolList();
+                    showNotification(`Added ${addedCount} new verses from Rooted collection.`);
+                } catch (error) {
+                    showNotification("Failed to load Rooted verses.", true);
+                    console.error("Error loading Rooted verses:", error);
+                }
+            }
+
+            async function loadMemoryVersesLists() {
+                const url = "https://adambutcher-007.github.io/HeartVerses/memory_verses.json";
+                try {
+                    const response = await fetch(url);
+                    if (!response.ok) throw new Error('Network error');
+                    const data = await response.json();
+                    const memoryLists = data.memory_verses || [];
+                    const listUl = document.getElementById('memory-verses-list');
+                    listUl.innerHTML = '';
+                    memoryLists.forEach((list, index) => {
+                        const li = document.createElement('li');
+                        li.className = 'verse-list-item';
+                        li.innerHTML = `<strong>${list.list_name}</strong><button class="add-button" data-index="${index}">Add</button>`;
+                        listUl.appendChild(li);
+                    });
+                    listUl.querySelectorAll('.add-button').forEach(button => {
+                        button.addEventListener('click', async (e) => {
+                            const idx = parseInt(e.target.dataset.index);
+                            const selectedList = memoryLists[idx];
+                            await addVersesFromList(selectedList);
+                        });
+                    });
+                    memoryVersesModal.classList.remove('hidden');
+                } catch (error) {
+                    showNotification("Failed to load memory verses lists.", true);
+                    console.error("Error loading memory verses lists:", error);
+                }
+            }
+
+            async function addVersesFromList(list) {
+                const versesToAdd = list.verses || [];
+                const existingRefs = new Set(appState.verses.map(v => v.reference));
+                let addedCount = 0;
+                versesToAdd.forEach(verse => {
+                    if (!existingRefs.has(verse.reference)) {
+                        appState.verses.push(verse);
+                        addedCount++;
+                    }
+                });
+                updateVersePoolList();
+                showNotification(`Added ${addedCount} new verses from ${list.list_name}.`);
+            }
+            
+            function exportToFile() {
+                saveToBrowser();
+                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(localStorage.getItem(`heartVersesData_${appState.currentUser}`));
+                const downloadAnchorNode = document.createElement('a');
+                downloadAnchorNode.setAttribute("href", dataStr);
+                downloadAnchorNode.setAttribute("download", `heart_verses_${appState.currentUser}.json`);
+                document.body.appendChild(downloadAnchorNode);
+                downloadAnchorNode.click();
+                downloadAnchorNode.remove();
+                showNotification("File exported!");
+            }
+
+            function importFromFile(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    try {
+                        const importedData = JSON.parse(event.target.result);
+                        if (importedData.verses) appState.verses = importedData.verses;
+                        if (importedData.userStats) appState.userStats = importedData.userStats;
+                        if (importedData.userSettings) appState.userSettings = importedData.userSettings;
+                        populateRecentUsers();
+                        updateVersePoolList();
+                        saveToBrowser();
+                        showNotification("Data imported successfully!");
+                    } catch (error) {
+                        showNotification("Error reading file. Ensure it's a valid JSON.", true);
+                    }
+                };
+                reader.readAsText(file);
+            }
+
+            initializeApp();
+        });
+    </script>
+
+</body>
+</html>
