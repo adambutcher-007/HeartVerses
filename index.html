@@ -4,6 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Heart Verses</title>
+    <!-- BLB ScriptTagger -->
+    <script src="https://www.blueletterbible.org/assets/scripts/blbToolTip/BLB_ScriptTagger-min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        BLB.Tagger.Translation = 'ESV';
+        BLB.Tagger.HyperLinks = 'hover'; 
+        BLB.Tagger.HideTanslationAbbrev = false;
+        BLB.Tagger.TargetNewWindow = true;
+        BLB.Tagger.Style = 'par'; 
+    </script>
+
     <style>
         :root {
             --primary-glow: #00ff00;
@@ -297,6 +307,29 @@
         .notification { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background-color: #222; color: white; padding: 15px 30px; border-radius: 10px; z-index: 1000; opacity: 0; visibility: hidden; transition: opacity 0.5s, visibility 0.5s, bottom 0.5s; border: 2px solid var(--primary-glow); box-shadow: 0 0 10px var(--primary-glow); text-shadow: 0 0 5px var(--primary-glow); }
         .notification.show { opacity: 1; visibility: visible; bottom: 30px; }
         .notification.error { border-color: var(--incorrect-glow); box-shadow: 0 0 10px var(--incorrect-glow); text-shadow: 0 0 5px var(--incorrect-glow); }
+        
+        /* BLB Result Styling */
+        #blb-result-container {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px dashed var(--tertiary-glow);
+            border-radius: 10px;
+            background-color: #111;
+        }
+        
+        #blb-verse-link {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: var(--primary-glow);
+            cursor: help;
+        }
+        
+        .blb-instructions {
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: #ccc;
+            line-height: 1.4;
+        }
     </style>
 </head>
 <body>
@@ -351,6 +384,9 @@
                 <h2>Edit Verses</h2>
                 <hr class="decorative-line">
                 <h3>Add a Verse</h3>
+                <div style="text-align: center; margin-bottom: 15px;">
+                     <button id="open-lookup-btn" class="button small-button" style="width: fit-content; display: inline-block; background-color: var(--tertiary-glow); color: #000;">🔍 Search</button>
+                </div>
                 <input type="text" id="custom-ref-input" placeholder="Reference (e.g., John 3:16)">
                 <input type="text" id="custom-trans-input" placeholder="Translation (e.g., ESV)">
                 <textarea id="custom-text-input" placeholder="Verse Text" rows="4" style="width: 95%;"></textarea>
@@ -369,6 +405,52 @@
                     <input type="file" id="import-file-input" class="hidden" accept=".json">
                 </div>
                 <ul id="verse-pool-list" class="verse-list"></ul>
+            </div>
+        </div>
+
+        <!-- Lookup Screen (Modal) -->
+        <div id="lookup-screen" class="modal hidden">
+            <div class="modal-content">
+                <span id="close-lookup-screen" class="close-button">&times;</span>
+                <h2>Lookup Verse</h2>
+                <hr class="decorative-line">
+                <p style="color: #ccc; font-style: italic;">Powered by Blue Letter Bible ScriptTagger</p>
+                <input type="text" id="lookup-ref-input" placeholder="Reference (e.g. John 3:16)">
+                <select id="lookup-trans-select" style="width: 95%;">
+                    <option value="ESV">English Standard Version (ESV)</option>
+                    <option value="KJV">King James Version (KJV)</option>
+                    <option value="NKJV">New King James Version (NKJV)</option>
+                    <option value="NIV">New International Version (NIV)</option>
+                    <option value="NLT">New Living Translation (NLT)</option>
+                    <option value="CSB">Christian Standard Bible (CSB)</option>
+                    <option value="NASB20">New American Standard Bible 2020 (NASB20)</option>
+                    <option value="NASB95">New American Standard Bible 1995 (NASB95)</option>
+                    <option value="LSB">Legacy Standard Bible (LSB)</option>
+                    <option value="NET">New English Translation (NET)</option>
+                    <option value="RSV">Revised Standard Version (RSV)</option>
+                    <option value="ASV">American Standard Version (ASV)</option>
+                    <option value="YLT">Young's Literal Translation (YLT)</option>
+                    <option value="DBY">Darby Translation (DBY)</option>
+                    <option value="WEB">World English Bible (WEB)</option>
+                    <option value="VUL">Latin Vulgate (VUL)</option>
+                    <option value="WLC">Westminster Leningrad Codex (WLC)</option>
+                    <option value="LXX">Septuagint (LXX)</option>
+                    <option value="TR">Textus Receptus (TR)</option>
+                </select>
+                <br><br>
+                <button id="perform-lookup-btn" class="button small-button">Show Verse</button>
+                
+                <div id="blb-result-container" class="hidden">
+                    <div id="blb-verse-link"></div>
+                    <div class="blb-instructions">
+                        <p>1. Hover your mouse over (or tap on) the verse above.<br>
+                        2. When the popup appears, highlight and copy the text.<br>
+                        3. Click "Return" below, then paste into the "Verse Text" box.</p>
+                    </div>
+                </div>
+                
+                <br><br>
+                <button id="return-from-lookup-btn" class="button small-button" style="background-color: #666;">Return</button>
             </div>
         </div>
 
@@ -409,6 +491,18 @@
             let isSessionEnding = false;
 
             const challengeScreen = document.getElementById('challenge-screen'), userScreen = document.getElementById('user-screen'), editScreen = document.getElementById('edit-screen'), statsScreen = document.getElementById('stats-screen'), startBtn = document.getElementById('start-btn'), nameInput = document.getElementById('name-input'), recentUsersSelect = document.getElementById('recent-users-select'), sessionCounter = document.getElementById('session-counter'), currentUserDisplay = document.getElementById('current-user-display'), settingsBtn = document.getElementById('settings-btn'), verseRefDisplay = document.getElementById('verse-reference-display'), verseTextDisplay = document.getElementById('verse-text-display'), typingInput = document.getElementById('typing-input'), completionControls = document.getElementById('completion-controls'), nextVerseBtn = document.getElementById('next-verse-btn'), speakVerseBtn = document.getElementById('speak-verse-btn'), doneBtn = document.getElementById('done-btn'), difficultySlider = document.getElementById('difficulty-slider'), difficultyLevelLabel = document.getElementById('difficulty-level-label'), closeEditScreenBtn = document.getElementById('close-edit-screen'), addVerseBtn = document.getElementById('add-verse-btn'), customRefInput = document.getElementById('custom-ref-input'), customTransInput = document.getElementById('custom-trans-input'), customTextInput = document.getElementById('custom-text-input'), versePoolList = document.getElementById('verse-pool-list'), fileMenu = document.getElementById('file-menu'), importFileInput = document.getElementById('import-file-input'), closeStatsScreenBtn = document.getElementById('close-stats-screen'), statsTitle = document.getElementById('stats-title'), statsList = document.getElementById('stats-list'), notificationPopup = document.getElementById('notification-popup'), memoryVersesModal = document.getElementById('memory-verses-modal'), closeMemoryVersesBtn = document.getElementById('close-memory-verses');
+            
+            // Lookup elements
+            const openLookupBtn = document.getElementById('open-lookup-btn');
+            const lookupScreen = document.getElementById('lookup-screen');
+            const closeLookupScreenBtn = document.getElementById('close-lookup-screen');
+            const lookupRefInput = document.getElementById('lookup-ref-input');
+            const lookupTransSelect = document.getElementById('lookup-trans-select');
+            const performLookupBtn = document.getElementById('perform-lookup-btn');
+            const returnFromLookupBtn = document.getElementById('return-from-lookup-btn');
+            const blbResultContainer = document.getElementById('blb-result-container');
+            const blbVerseLink = document.getElementById('blb-verse-link');
+
             let notificationTimeout;
 
             async function initializeApp() {
@@ -428,8 +522,46 @@
                 difficultySlider.addEventListener('input', () => difficultyLevelLabel.textContent = difficultySlider.value);
                 difficultySlider.addEventListener('change', updateDifficultyStatOnSliderChange);
                 closeMemoryVersesBtn.addEventListener('click', () => memoryVersesModal.classList.add('hidden'));
+                
+                // Lookup Listeners
+                openLookupBtn.addEventListener('click', () => {
+                    lookupScreen.classList.remove('hidden');
+                    blbResultContainer.classList.add('hidden');
+                    lookupRefInput.value = '';
+                });
+                closeLookupScreenBtn.addEventListener('click', () => lookupScreen.classList.add('hidden'));
+                performLookupBtn.addEventListener('click', triggerBLB);
+                returnFromLookupBtn.addEventListener('click', () => {
+                    lookupScreen.classList.add('hidden');
+                });
+
                 startBtn.disabled = false;
                 startBtn.textContent = "Store up God's Word in my heart";
+            }
+
+            function triggerBLB() {
+                const ref = lookupRefInput.value.trim();
+                const translation = lookupTransSelect.value;
+                if (!ref) return showNotification("Please enter a verse reference.", true);
+
+                // Update BLB Translation and Settings
+                if (typeof BLB !== 'undefined' && BLB.Tagger) {
+                    BLB.Tagger.Translation = translation;
+                    BLB.Tagger.HyperLinks = 'hover';
+                }
+
+                // Display Reference in the Window
+                blbVerseLink.innerHTML = ref + ' (' + translation + ')';
+                blbResultContainer.classList.remove('hidden');
+
+                // Pre-fill the edit form (user can paste text later)
+                customRefInput.value = ref;
+                customTransInput.value = translation;
+
+                // Reload the ScriptTagger
+                if (typeof BLB !== 'undefined' && BLB.Tagger && BLB.Tagger.pageInit) {
+                    BLB.Tagger.pageInit();
+                }
             }
 
             function handleCloseStats() {
