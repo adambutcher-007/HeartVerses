@@ -360,5 +360,35 @@
         }
       ]
     }
+    {
+      "list_name": "Bob-isms (GCEP)",
+      "verses": [
+        {
+          "reference": "Bob-isms 1:1",
+          "translation": "GCEP",
+          "text": "If I really believe what I believe to be true, how will I live my life? And if I don't live it out, do I really believe it?"
+        },
+        {
+          "reference": "Bob-isms 2:4",
+          "translation": "GCEP",
+          "text": "If we really believe Jesus is the only hope, then the hard truth is: silence isn't neutral"
+        },
+        {
+          "reference": "Bob-isms 31:14",
+          "translation": "GCEP",
+          "text": "Evangelism fueled by guilt doesn't last. Evangelism fueled by love absolutely does."
+        },
+        {
+          "reference": "Bob-isms 19:22",
+          "translation": "GCEP",
+          "text": "You'll never consistently speak about Jesus, until your heart is broken for the people without Him."
+        },
+        {
+          "reference": "Bob-isms 82:20",
+          "translation": "GCEP",
+          "text": "Let's not ask \"Am I ready?\" But ask \"Am I willing?\""
+        }
+      ]
+    }
   ]
 }
