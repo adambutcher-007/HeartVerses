@@ -403,6 +403,11 @@
                         <option value="add-memory-verses">Add Memory Verses...</option>
                     </select>
                     <input type="file" id="import-file-input" class="hidden" accept=".json">
+                    
+                    <!-- Randomize Checkbox -->
+                    <label style="font-size: 0.8em; margin-left: 10px; cursor: pointer;">
+                        <input type="checkbox" id="randomize-checkbox" checked style="width: auto; margin: 0 5px 0 0; vertical-align: middle;"> Randomize
+                    </label>
                 </div>
                 <ul id="verse-pool-list" class="verse-list"></ul>
             </div>
@@ -502,6 +507,9 @@
             const returnFromLookupBtn = document.getElementById('return-from-lookup-btn');
             const blbResultContainer = document.getElementById('blb-result-container');
             const blbVerseLink = document.getElementById('blb-verse-link');
+
+            // Randomize Checkbox
+            const randomizeCheckbox = document.getElementById('randomize-checkbox');
 
             let notificationTimeout;
 
@@ -613,7 +621,25 @@
                 completionControls.classList.add('hidden');
                 typingInput.value = '';
                 typingInput.disabled = false;
-                appState.currentVerse = appState.verses[Math.floor(Math.random() * appState.verses.length)];
+
+                // Randomize or Sequential Logic
+                if (randomizeCheckbox && !randomizeCheckbox.checked) {
+                    // Sequential Logic
+                    let nextIndex = 0;
+                    if (appState.currentVerse) {
+                         const currentIndex = appState.verses.indexOf(appState.currentVerse);
+                         nextIndex = currentIndex + 1;
+                    }
+                    // Loop back to start if we reach the end or if current verse wasn't found
+                    if (nextIndex >= appState.verses.length || nextIndex < 0) {
+                        nextIndex = 0;
+                    }
+                    appState.currentVerse = appState.verses[nextIndex];
+                } else {
+                    // Random Logic (Default)
+                    appState.currentVerse = appState.verses[Math.floor(Math.random() * appState.verses.length)];
+                }
+
                 const verseId = appState.currentVerse.reference;
                 const stats = getVerseStats(verseId);
                 const difficulty = stats.difficulty;
