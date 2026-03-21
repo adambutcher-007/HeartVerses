@@ -132,9 +132,9 @@
             box-shadow: 0 0 5px var(--primary-glow);
         }
         
-        #recent-users-select {
-            min-width: 240px;
-            vertical-align: middle;
+        #name-input {
+            width: 420px;
+            max-width: 85%;
         }
 
         .top-bar {
@@ -330,6 +330,39 @@
             color: #ccc;
             line-height: 1.4;
         }
+
+        /* TTS SPEAKING INDICATOR - using your attached glowing heart image */
+        #challenge-screen {
+            position: relative;
+        }
+
+        #speaking-indicator {
+            position: absolute;
+            top: 95px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 50;
+            pointer-events: none;
+            opacity: 0.95;
+        }
+
+        #speaking-indicator img {
+            width: 85px;
+            height: 85px;
+            animation: alivePulse 1.15s infinite ease-in-out;
+            filter: drop-shadow(0 0 12px #ff0000) drop-shadow(0 0 25px #ff00ff);
+        }
+
+        @keyframes alivePulse {
+            0%, 100% {
+                transform: scale(1);
+                filter: drop-shadow(0 0 12px #ff0000) drop-shadow(0 0 25px #ff00ff);
+            }
+            50% {
+                transform: scale(1.22);
+                filter: drop-shadow(0 0 25px #ffff00) drop-shadow(0 0 45px #ff00ff) drop-shadow(0 0 5px #ff0000);
+            }
+        }
     </style>
 </head>
 <body>
@@ -343,6 +376,12 @@
                 <div id="current-user-display"></div>
                 <div id="settings-btn" class="settings-button">⚙️</div>
             </div>
+
+            <!-- TTS SPEAKING INDICATOR (your attached image - animated to look "alive") -->
+            <div id="speaking-indicator" class="hidden">
+                <img src="speaking-heart.png" alt="TTS Speaking" title="God's Word is being spoken aloud">
+            </div>
+
             <div id="verse-reference-display" class="verse-reference"></div>
             <div class="verse-display-container">
                 <div id="verse-text-display" class="verse-display"></div>
@@ -364,12 +403,20 @@
         <!-- User Selection Screen -->
         <div id="user-screen">
             <h1>Heart Verses</h1>
+            
+            <!-- NEW: Speaking heart image under the title (reuses the same pulsing animation and glow) -->
+            <img src="speaking-heart.png" 
+                 alt="Heart Verses" 
+                 style="display: block; margin: 20px auto 30px auto; width: 140px; height: 140px; 
+                        animation: alivePulse 3s infinite ease-in-out; 
+                        filter: drop-shadow(0 0 12px #ff0000) drop-shadow(0 0 25px #ff00ff);">
+
             <p>Heart Verses strives to help us memorize verses by utilizing multiple learning styles: Reading, Writing, Auditory, and Kinesthetic. Click the button to begin training.</p>
-            <input type="text" id="name-input" placeholder="Enter your first name">
-            <select id="recent-users-select"></select>
+            <input type="text" id="name-input" placeholder="Enter or select your name" list="recent-users-datalist">
+            <datalist id="recent-users-datalist"></datalist>
             <br><br>
             <button id="start-btn" class="button" disabled>Loading...</button>
-            <p id="volume-warning">🔊 Make sure your volume is at a good level before proceeding!</p>
+            <p id="volume-warning"></p>
         </div>
         <!-- Video Link -->
         <div class="video-link">
@@ -495,7 +542,7 @@
             
             let isSessionEnding = false;
 
-            const challengeScreen = document.getElementById('challenge-screen'), userScreen = document.getElementById('user-screen'), editScreen = document.getElementById('edit-screen'), statsScreen = document.getElementById('stats-screen'), startBtn = document.getElementById('start-btn'), nameInput = document.getElementById('name-input'), recentUsersSelect = document.getElementById('recent-users-select'), sessionCounter = document.getElementById('session-counter'), currentUserDisplay = document.getElementById('current-user-display'), settingsBtn = document.getElementById('settings-btn'), verseRefDisplay = document.getElementById('verse-reference-display'), verseTextDisplay = document.getElementById('verse-text-display'), typingInput = document.getElementById('typing-input'), completionControls = document.getElementById('completion-controls'), nextVerseBtn = document.getElementById('next-verse-btn'), speakVerseBtn = document.getElementById('speak-verse-btn'), doneBtn = document.getElementById('done-btn'), difficultySlider = document.getElementById('difficulty-slider'), difficultyLevelLabel = document.getElementById('difficulty-level-label'), closeEditScreenBtn = document.getElementById('close-edit-screen'), addVerseBtn = document.getElementById('add-verse-btn'), customRefInput = document.getElementById('custom-ref-input'), customTransInput = document.getElementById('custom-trans-input'), customTextInput = document.getElementById('custom-text-input'), versePoolList = document.getElementById('verse-pool-list'), fileMenu = document.getElementById('file-menu'), importFileInput = document.getElementById('import-file-input'), closeStatsScreenBtn = document.getElementById('close-stats-screen'), statsTitle = document.getElementById('stats-title'), statsList = document.getElementById('stats-list'), notificationPopup = document.getElementById('notification-popup'), memoryVersesModal = document.getElementById('memory-verses-modal'), closeMemoryVersesBtn = document.getElementById('close-memory-verses');
+            const challengeScreen = document.getElementById('challenge-screen'), userScreen = document.getElementById('user-screen'), editScreen = document.getElementById('edit-screen'), statsScreen = document.getElementById('stats-screen'), startBtn = document.getElementById('start-btn'), nameInput = document.getElementById('name-input'), sessionCounter = document.getElementById('session-counter'), currentUserDisplay = document.getElementById('current-user-display'), settingsBtn = document.getElementById('settings-btn'), verseRefDisplay = document.getElementById('verse-reference-display'), verseTextDisplay = document.getElementById('verse-text-display'), typingInput = document.getElementById('typing-input'), completionControls = document.getElementById('completion-controls'), nextVerseBtn = document.getElementById('next-verse-btn'), speakVerseBtn = document.getElementById('speak-verse-btn'), doneBtn = document.getElementById('done-btn'), difficultySlider = document.getElementById('difficulty-slider'), difficultyLevelLabel = document.getElementById('difficulty-level-label'), closeEditScreenBtn = document.getElementById('close-edit-screen'), addVerseBtn = document.getElementById('add-verse-btn'), customRefInput = document.getElementById('custom-ref-input'), customTransInput = document.getElementById('custom-trans-input'), customTextInput = document.getElementById('custom-text-input'), versePoolList = document.getElementById('verse-pool-list'), fileMenu = document.getElementById('file-menu'), importFileInput = document.getElementById('import-file-input'), closeStatsScreenBtn = document.getElementById('close-stats-screen'), statsTitle = document.getElementById('stats-title'), statsList = document.getElementById('stats-list'), notificationPopup = document.getElementById('notification-popup'), memoryVersesModal = document.getElementById('memory-verses-modal'), closeMemoryVersesBtn = document.getElementById('close-memory-verses');
             
             // Lookup elements
             const openLookupBtn = document.getElementById('open-lookup-btn');
@@ -511,7 +558,18 @@
             // Randomize Checkbox
             const randomizeCheckbox = document.getElementById('randomize-checkbox');
 
+            // NEW: TTS Speaking Indicator
+            const speakingIndicator = document.getElementById('speaking-indicator');
+
             let notificationTimeout;
+
+            function showSpeakingIndicator() {
+                speakingIndicator.classList.remove('hidden');
+            }
+
+            function hideSpeakingIndicator() {
+                speakingIndicator.classList.add('hidden');
+            }
 
             async function initializeApp() {
                 populateRecentUsers();
@@ -544,7 +602,7 @@
                 });
 
                 startBtn.disabled = false;
-                startBtn.textContent = "Store up God's Word in my heart";
+                startBtn.textContent = "Begin Training!";
             }
 
             function triggerBLB() {
@@ -581,9 +639,25 @@
                 isSessionEnding = false; // Reset flag after action
             }
 
+            // UPDATED speak() function with visual indicator
             function speak(text, cancelPrevious = true) {
-                if (cancelPrevious) speechSynthesis.cancel();
+                if (cancelPrevious) {
+                    speechSynthesis.cancel();
+                    hideSpeakingIndicator();
+                }
                 const utterance = new SpeechSynthesisUtterance(text);
+                
+                // Attach live events so the heart icon appears "alive" exactly while the voice is speaking
+                utterance.onstart = () => {
+                    showSpeakingIndicator();
+                };
+                utterance.onend = () => {
+                    hideSpeakingIndicator();
+                };
+                utterance.onerror = () => {
+                    hideSpeakingIndicator();
+                };
+
                 speechSynthesis.speak(utterance);
             }
 
@@ -596,9 +670,9 @@
             }
 
             async function startChallenge() {
-                const selectedUser = nameInput.value.trim() || recentUsersSelect.value;
+                const selectedUser = nameInput.value.trim();
                 if (!selectedUser) {
-                    showNotification("Please enter or select a name.", true);
+                    showNotification("Please enter a name.", true);
                     return;
                 }
                 appState.currentUser = selectedUser;
@@ -870,15 +944,15 @@
             }
 
             function populateRecentUsers() {
-                recentUsersSelect.innerHTML = '<option value="">Select recent user</option>';
+                const datalist = document.getElementById('recent-users-datalist');
+                datalist.innerHTML = '';
                 for (let i = 0; i < localStorage.length; i++) {
                     const key = localStorage.key(i);
                     if (key.startsWith('heartVersesData_')) {
                         const user = key.substring('heartVersesData_'.length);
                         const option = document.createElement('option');
                         option.value = user;
-                        option.textContent = user;
-                        recentUsersSelect.appendChild(option);
+                        datalist.appendChild(option);
                     }
                 }
             }
