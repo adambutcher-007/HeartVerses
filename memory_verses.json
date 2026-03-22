@@ -361,6 +361,306 @@
       ]
     },
     {
+      "list_name": "EMAW - Book 1",
+      "verses": [
+        {
+          "reference": "Matthew 22:36-38",
+          "translation": "NIV",
+          "text": "\"Teacher, which is the greatest commandment in the Law?\" Jesus replied: \"Love the Lord your God with all your heart and with all your soul and with all your mind. This is the first and greatest commandment.\""
+        },
+        {
+          "reference": "2 Timothy 3:16-17",
+          "translation": "NIV",
+          "text": "All Scripture is God-breathed and is useful for teaching, rebuking, correcting and training in righteousness, so that the man of God may be thoroughly equipped for every good work."
+        },
+        {
+          "reference": "Joshua 1:8",
+          "translation": "NIV",
+          "text": "Do not let this Book of the Law depart from your mouth; meditate on it day and night, so that you may be careful to do everything written in it. Then you will be prosperous and successful."
+        },
+        {
+          "reference": "John 16:24",
+          "translation": "NIV",
+          "text": "Until now you have not asked for anything in my name. Ask and you will receive, and your joy will be complete."
+        },
+        {
+          "reference": "Philippians 4:6-7",
+          "translation": "NIV",
+          "text": "Do not be anxious about anything, but in everything, by prayer and petition, with thanksgiving, present your requests to God. And the peace of God, which transcends all understanding, will guard your hearts and your minds in Christ Jesus."
+        },
+        {
+          "reference": "James 1:22",
+          "translation": "NIV",
+          "text": "Do not merely listen to the word, and so deceive yourselves. Do what it says."
+        },
+        {
+          "reference": "Hebrews 12:11",
+          "translation": "NIV",
+          "text": "No discipline seems pleasant at the time, but painful. Later on, however, it produces a harvest of righteousness and peace for those who have been trained by it."
+        }
+      ]
+    },
+    {
+      "list_name": "EMAW - Book 2",
+      "verses": [
+        {
+          "reference": "Genesis 2:18",
+          "translation": "NIV",
+          "text": "The Lord God said, \"It is not good for the man to be alone. I will make a helper suitable for him.\""
+        },
+        {
+          "reference": "Ephesians 5:25",
+          "translation": "NIV",
+          "text": "Husbands, love your wives, just as Christ loved the church and gave himself up for her."
+        },
+        {
+          "reference": "1 Peter 4:19",
+          "translation": "NIV",
+          "text": "So then, those who suffer according to God's will should commit themselves to their faithful Creator and continue to do good."
+        },
+        {
+          "reference": "1 Peter 3:7",
+          "translation": "NASB",
+          "text": "You husbands in the same way, live with your wives in an understanding way, as with someone weaker, since she is a woman; and show her honor as a fellow heir of the grace of life, so that your prayers will not be hindered."
+        },
+        {
+          "reference": "Ephesians 6:4",
+          "translation": "NIV",
+          "text": "Fathers, do not exasperate your children, instead, bring them up in the training and instruction of the Lord."
+        },
+        {
+          "reference": "Proverbs 18:21",
+          "translation": "NIV",
+          "text": "The tongue has the power of life and death"
+        },
+        {
+          "reference": "Proverbs 18:13",
+          "translation": "NIV",
+          "text": "He who answers before listening, that is his folly and his shame."
+        },
+        {
+          "reference": "1 Peter 3:8-9",
+          "translation": "NIV",
+          "text": "Finally, all of you, live in harmony with one another; be sympathetic, love as brothers, be compassionate and humble. Do not repay evil with evil or insult with insult, but with blessing, because to this you were called so that you may inherit a blessing."
+        }
+      ]
+    },
+    {
+      "list_name": "EMAW - Book 2 (Gospel)",
+      "verses": [
+        {
+          "reference": "John 1:12",
+          "translation": "NIV",
+          "text": "Yet to all who did receive him, to those who believed in his name, he gave the right to become children of God."
+        },
+        {
+          "reference": "John 3:16",
+          "translation": "NIV",
+          "text": "For God so loved the world that he gave his one and only Son, that whoever believes in him shall not perish but have eternal life."
+        },
+        {
+          "reference": "Romans 3:23",
+          "translation": "NIV",
+          "text": "for all have sinned and fall short of the glory of God,"
+        },
+        {
+          "reference": "Romans 5:8",
+          "translation": "NIV",
+          "text": "But God demonstrates his own love for us in this: While we were still sinners, Christ died for us."
+        },
+        {
+          "reference": "Ephesians 2:8-9",
+          "translation": "NIV",
+          "text": "For it is by grace you have been saved, through faith-and this is not from yourselves, it is the gift of God-not by works, so that no one can boast."
+        },
+        {
+          "reference": "1 Peter 3:18",
+          "translation": "NIV",
+          "text": "For Christ also suffered once for sins, the righteous for the unrighteous, to bring you to God. He was put to death in the body but made alive in the Spirit."
+        },
+        {
+          "reference": "Revelation 3:20",
+          "translation": "NIV",
+          "text": "Here I am! I stand at the door and knock. If anyone hears my voice and opens the door, I will come in and eat with that person, and they with me."
+        },
+        {
+          "reference": "1 John 5:11-12",
+          "translation": "NIV",
+          "text": "And this is the testimony: God has given us eternal life, and this life is in his Son. Whoever has the Son has life; whoever does not have the Son of God does not have life."
+        }
+      ]
+    },
+    {
+      "list_name": "EMAW - Book 3",
+      "verses": [
+        {
+          "reference": "Mark 4:19",
+          "translation": "NIV",
+          "text": "but the worries of this life, the deceitfulness of wealth and the desires for other things come in and choke the word, making it unfruitful."
+        },
+        {
+          "reference": "Proverbs 22:7",
+          "translation": "RSV",
+          "text": "The rich rule over the poor, and the borrower is the slave of the lender."
+        },
+        {
+          "reference": "Ecclesiastes 11:2",
+          "translation": "NIV",
+          "text": "Give portions to seven, yes to eight, for you do not know what disaster may come upon the land."
+        },
+        {
+          "reference": "1 Timothy 6:18-19",
+          "translation": "NIV",
+          "text": "Command them to do good, to be rich in good deeds, and to be generous and willing to share. In this way they will lay up treasure for themselves as a firm foundation for the coming age, so that they may take hold of the life that is truly life."
+        },
+        {
+          "reference": "James 1:2-4",
+          "translation": "NIV",
+          "text": "Consider it pure joy, my brothers, whenever you face trials of many kinds, because you know that the testing of your faith develops perseverance. Perseverance must finish its work so that you may be mature and complete, not lacking anything."
+        },
+        {
+          "reference": "Matthew 11:28-30",
+          "translation": "NIV",
+          "text": "Come to me, all you who are weary and burdened, and I will give you rest. Take my yoke upon you and learn from me, for I am gentle and humble in heart, and you will find rest for your souls. For my yoke is easy and my burden is light."
+        },
+        {
+          "reference": "Matthew 28:18-20",
+          "translation": "NIV",
+          "text": "Then Jesus came to them and said, \"All authority in heaven and on earth has been given to me. Therefore go and make disciples of all nations, baptizing them in the name of the Father and of the Son and of the Holy Spirit, teaching them to obey everything I have commanded you. And surely I am with you always, to the very end of the age.\""
+        },
+        {
+          "reference": "1 Corinthians 6:20",
+          "translation": "NIV",
+          "text": "You are not your own; you were bought at a price. Therefore honor God with your body."
+        },
+        {
+          "reference": "Colossians 3:23-24",
+          "translation": "NIV",
+          "text": "Whatever you do, work at it with all your heart, as working for the Lord, not for men, since you know that you will receive an inheritance from the Lord as a reward. It is the Lord Christ you are serving."
+        }
+      ]
+    },
+    {
+      "list_name": "EMAW - Book 4 (EMAPW)",
+      "verses": [
+        {
+          "reference": "1 Corinthians 10:13",
+          "translation": "NIV",
+          "text": "No temptation has overtaken you except what is common to mankind. And God is faithful; he will not let you be tempted beyond what you can bear. But when you are tempted, he will also provide a way out so that you can endure it."
+        },
+        {
+          "reference": "Ephesians 5:3",
+          "translation": "NIV",
+          "text": "But among you there must not be even a hint of sexual immorality, or of any kind of impurity, or of greed, because these are improper for God's holy people."
+        },
+        {
+          "reference": "Ecclesiastes 4:9–10",
+          "translation": "NIV",
+          "text": "Two are better than one, because they have a good return for their labor: If either of them falls down, one can help the other up. But pity anyone who falls and has no one to help them up."
+        },
+        {
+          "reference": "Romans 12:2",
+          "translation": "NIV",
+          "text": "Do not conform to the pattern of this world, but be transformed by the renewing of your mind. Then you will be able to test and approve what God's will is-his good, pleasing and perfect will."
+        },
+        {
+          "reference": "Psalm 119:9–11",
+          "translation": "NIV",
+          "text": "How can a young person stay on the path of purity? By living according to your word. I seek you with all my heart; do not let me stray from your commands. I have hidden your word in my heart that I might not sin against you."
+        },
+        {
+          "reference": "Psalm 103:8–12",
+          "translation": "NIV",
+          "text": "The Lord is compassionate and gracious, slow to anger, abounding in love. He will not always accuse, nor will he harbor his anger forever; he does not treat us as our sins deserve or repay us according to our iniquities. For as high as the heavens are above the earth, so great is his love for those who fear him; as far as the east is from the west, so far has he removed our transgressions from us."
+        },
+        {
+          "reference": "Ephesians 6:11",
+          "translation": "NIV",
+          "text": "Put on the full armor of God, so that you can take your stand against the devil's schemes."
+        },
+        {
+          "reference": "Romans 6:13",
+          "translation": "NIV",
+          "text": "Do not offer any part of yourself to sin as an instrument of wickedness, but rather offer yourselves to God as those who have been brought from death to life; and offer every part of yourself to him as an instrument of righteousness."
+        },
+        {
+          "reference": "1 Peter 5:8",
+          "translation": "NIV",
+          "text": "Be alert and of sober mind. Your enemy the devil prowls around like a roaring lion looking for someone to devour."
+        },
+        {
+          "reference": "Luke 4:13",
+          "translation": "NIV",
+          "text": "When the devil had finished all this tempting, he left him until an opportune time."
+        },
+        {
+          "reference": "2 Corinthians 10:3–5",
+          "translation": "NIV",
+          "text": "For though we live in the world, we do not wage war as the world does. The weapons we fight with are not the weapons of the world. On the contrary, they have divine power to demolish strongholds. We demolish arguments and every pretension that sets itself up against the knowledge of God, and we take captive every thought to make it obedient to Christ."
+        },
+        {
+          "reference": "James 4:7",
+          "translation": "NIV",
+          "text": "Submit yourselves, then, to God. Resist the devil, and he will flee from you."
+        },
+        {
+          "reference": "Ephesians 4:26–27",
+          "translation": "NIV",
+          "text": "In your anger do not sin: Do not let the sun go down while you are still angry, and do not give the devil a foothold."
+        },
+        {
+          "reference": "2 Corinthians 2:11",
+          "translation": "NIV",
+          "text": "in order that Satan might not outwit us. For we are not unaware of his schemes."
+        },
+        {
+          "reference": "Psalm 62:8",
+          "translation": "NIV",
+          "text": "Trust in him at all times, you people; pour out your hearts to him, for God is our refuge."
+        },
+        {
+          "reference": "Psalm 86:11",
+          "translation": "NIV",
+          "text": "Teach me your way, Lord, that I may rely on your faithfulness; give me an undivided heart, that I may fear your name."
+        },
+        {
+          "reference": "Isaiah 53:4–5",
+          "translation": "NIV",
+          "text": "Surely he took up our pain and bore our suffering, yet we considered him punished by God, stricken by him, and afflicted. But he was pierced for our transgressions, he was crushed for our iniquities; the punishment that brought us peace was on him, and by his wounds we are healed."
+        },
+        {
+          "reference": "Galatians 2:20",
+          "translation": "NIV",
+          "text": "I have been crucified with Christ and I no longer live, but Christ lives in me. The life I now live in the body, I live by faith in the Son of God, who loved me and gave himself for me."
+        },
+        {
+          "reference": "1 Corinthians 6:18–20",
+          "translation": "NIV",
+          "text": "Flee from sexual immorality. All other sins a person commits are outside the body, but whoever sins sexually, sins against their own body. Do you not know that your bodies are temples of the Holy Spirit, who is in you, whom you have received from God? You are not your own; you were bought at a price. Therefore honor God with your bodies."
+        },
+        {
+          "reference": "2 Corinthians 11:3",
+          "translation": "NIV",
+          "text": "But I am afraid that just as Eve was deceived by the serpent's cunning, your minds may somehow be led astray from your sincere and pure devotion to Christ."
+        },
+        {
+          "reference": "Hebrews 13:4",
+          "translation": "NIV",
+          "text": "Marriage should be honored by all, and the marriage bed kept pure, for God will judge the adulterer and all the sexually immoral."
+        },
+        {
+          "reference": "2 Peter 1:3–4",
+          "translation": "NIV",
+          "text": "His divine power has given us everything we need for a godly life through our knowledge of him who called us by his own glory and goodness. Through these he has given us his very great and precious promises, so that through them you may participate in the divine nature, having escaped the corruption in the world caused by evil desires."
+        },
+        {
+          "reference": "Matthew 6:9–13",
+          "translation": "NIV",
+          "text": "Our Father in heaven, hallowed be your name, your kingdom come, your will be done, on earth as it is in heaven. Give us today our daily bread. And forgive us our debts, as we also have forgiven our debtors. And lead us not into temptation, but deliver us from the evil one. For yours is the kingdom and the power and the glory forever. Amen."
+        }
+      ]
+    },
+    {
       "list_name": "Bob-isms (GCEP)",
       "verses": [
         {
