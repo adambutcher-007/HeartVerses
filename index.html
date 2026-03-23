@@ -137,6 +137,12 @@
             max-width: 85%;
         }
 
+        /* Sound toggle on user screen - no glow ever, special off-state styling */
+        #sound-toggle-user {
+            text-shadow: none !important;
+            box-shadow: none !important;
+        }
+
         .top-bar {
             display: flex;
             justify-content: space-between;
@@ -374,7 +380,10 @@
             <div class="top-bar">
                 <div id="session-counter" class="top-bar-item">📖 0</div>
                 <div id="current-user-display"></div>
-                <div id="settings-btn" class="settings-button">⚙️</div>
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div id="sound-toggle-challenge" class="settings-button">🔊</div>
+                    <div id="settings-btn" class="settings-button">⚙️</div>
+                </div>
             </div>
 
             <!-- TTS SPEAKING INDICATOR (your attached image - animated to look "alive") -->
@@ -415,6 +424,7 @@
             <input type="text" id="name-input" placeholder="Enter or select your name" list="recent-users-datalist">
             <datalist id="recent-users-datalist"></datalist>
             <br><br>
+            <button id="sound-toggle-user" class="button small-button" style="margin-bottom: 15px; display: block; margin-left: auto; margin-right: auto;">🔊 Sound On</button>
             <button id="start-btn" class="button" disabled>Loading...</button>
             <p id="volume-warning"></p>
         </div>
@@ -538,9 +548,10 @@
                 sessionCount: 0,
                 difficultyPercentages: { 1: 0.05, 2: 0.10, 3: 0.20, 4: 0.30, 5: 0.40, 6: 0.50, 7: 1.0 }
             };
-            const encouragementPhrases = [ "Congratulations, <name>!", "Seems like you've really got that one!", "Terrific!", "Jesus saw that, <name>, good job!", "Well done, good and faithful servant!", "Want to increase the difficulty?", "Hey, no using your Bible! ...Just kidding!", "Another step toward memorization!", "I just heard your brain grow a little, <name>!", "You are a person after God's own heart!", "Keep it up, <name>!", "Great job! Do you have time for another?", "Marvelous!", "I'm speechless! Just kidding.", "You've certainly stored THAT word up in your heart!", "May that word dwell in you, richly.", "You're good at this, <name>!", "That was one of my favorites, too!", "Jesus couldn't have typed it better himself!", "This is a new milestone in your training, congrats <name>!", "The same God who parted the Red Sea has already cleared a path for you.", "The joy of the Lord is your strength, <name>!", "God’s plans for you are good.", "Your latter days are going to be greater than your former.", "God’s not finished with you, <name>, He’s just getting to the good part.", "Your name is written in the Book of Life—and the ink is permanent.", "Like manna, God’s provision shows up fresh every single morning.", "You’re a branch connected to the Vine", "Your weeping may last for a night, but joy’s alarmm clock is already set for morning.", "Keep shining, <name>—your story is still being written by the best Author ever!" ];
+            const encouragementPhrases = [ "Congratulations, <name>!", "Seems like you've really got that one!", "Terrific!", "Jesus saw that, <name>, good job!", "Well done, good and faithful servant!", "Want to increase the difficulty?", "Hey, no using your Bible! ...Just kidding!", "Another step toward memorization!", "I just heard your brain grow a little, <name>!", "You are a person after God's own heart!", "Keep it up, <name>!", "Great job! Do you have time for another?", "Marvelous!", "I'm speechless! Just kidding.", "You've certainly stored THAT word up in your heart!", "May that word dwell in you, richly.", "You're good at this, <name>!", "That was one of my favorites, too!", "Jesus couldn't have typed it better himself!", "This is a new milestone in your training, congrats <name>!", "The same God who parted the Red Sea has already cleared a path for you.", "The joy of the Lord is your strength, <name>!", "God’s plans for you are good.", "Your latter days are going to be greater than your former.", "God’s not finished with you, <name>, He’s just getting to the good part.", "Your name is written in the Book of Life—and the ink is permanent.", "Like manna, God’s provision shows up fresh every single morning.", "You’re a branch connected to the Vine", "Your weeping may last for a night, but joy’s alarm clock is already set for morning.", "Keep shining, <name>—your story is still being written by the best Author ever!" ];
             
             let isSessionEnding = false;
+            let soundEnabled = true;
 
             const challengeScreen = document.getElementById('challenge-screen'), userScreen = document.getElementById('user-screen'), editScreen = document.getElementById('edit-screen'), statsScreen = document.getElementById('stats-screen'), startBtn = document.getElementById('start-btn'), nameInput = document.getElementById('name-input'), sessionCounter = document.getElementById('session-counter'), currentUserDisplay = document.getElementById('current-user-display'), settingsBtn = document.getElementById('settings-btn'), verseRefDisplay = document.getElementById('verse-reference-display'), verseTextDisplay = document.getElementById('verse-text-display'), typingInput = document.getElementById('typing-input'), completionControls = document.getElementById('completion-controls'), nextVerseBtn = document.getElementById('next-verse-btn'), speakVerseBtn = document.getElementById('speak-verse-btn'), doneBtn = document.getElementById('done-btn'), difficultySlider = document.getElementById('difficulty-slider'), difficultyLevelLabel = document.getElementById('difficulty-level-label'), closeEditScreenBtn = document.getElementById('close-edit-screen'), addVerseBtn = document.getElementById('add-verse-btn'), customRefInput = document.getElementById('custom-ref-input'), customTransInput = document.getElementById('custom-trans-input'), customTextInput = document.getElementById('custom-text-input'), versePoolList = document.getElementById('verse-pool-list'), fileMenu = document.getElementById('file-menu'), importFileInput = document.getElementById('import-file-input'), closeStatsScreenBtn = document.getElementById('close-stats-screen'), statsTitle = document.getElementById('stats-title'), statsList = document.getElementById('stats-list'), notificationPopup = document.getElementById('notification-popup'), memoryVersesModal = document.getElementById('memory-verses-modal'), closeMemoryVersesBtn = document.getElementById('close-memory-verses');
             
@@ -561,7 +572,22 @@
             // NEW: TTS Speaking Indicator
             const speakingIndicator = document.getElementById('speaking-indicator');
 
+            // Sound toggle elements
+            const soundToggleUserBtn = document.getElementById('sound-toggle-user');
+            const soundToggleChallengeBtn = document.getElementById('sound-toggle-challenge');
+
             let notificationTimeout;
+
+            function isAlphabetic(char) {
+                return /^[a-zA-Z]$/.test(char);
+            }
+
+            function charsMatch(typed, original) {
+                if (!isAlphabetic(typed) || !isAlphabetic(original)) {
+                    return typed === original;
+                }
+                return typed.toLowerCase() === original.toLowerCase();
+            }
 
             function showSpeakingIndicator() {
                 speakingIndicator.classList.remove('hidden');
@@ -601,6 +627,42 @@
                     lookupScreen.classList.add('hidden');
                 });
 
+                // Sound toggle setup
+                function updateToggleDisplays() {
+                    const emoji = soundEnabled ? '🔊' : '🔇';
+                    const label = soundEnabled ? '🔊 Sound On' : '🔇 Sound Off';
+                    if (soundToggleUserBtn) {
+                        soundToggleUserBtn.textContent = label;
+                        if (!soundEnabled) {
+                            // Off state: black background, green border, grey text (no glow)
+                            soundToggleUserBtn.style.backgroundColor = '#000000';
+                            soundToggleUserBtn.style.border = '2px solid var(--primary-glow)';
+                            soundToggleUserBtn.style.color = '#888';
+                        } else {
+                            // On state: reset to normal .button styling (glow already removed by CSS rule)
+                            soundToggleUserBtn.style.backgroundColor = '';
+                            soundToggleUserBtn.style.border = '';
+                            soundToggleUserBtn.style.color = '';
+                        }
+                    }
+                    if (soundToggleChallengeBtn) soundToggleChallengeBtn.textContent = emoji;
+                }
+
+                function toggleSound() {
+                    soundEnabled = !soundEnabled;
+                    localStorage.setItem('heartVersesSoundEnabled', soundEnabled.toString());
+                    updateToggleDisplays();
+                }
+
+                // Load persisted sound setting
+                const savedSound = localStorage.getItem('heartVersesSoundEnabled');
+                if (savedSound !== null) {
+                    soundEnabled = savedSound === 'true';
+                }
+                updateToggleDisplays();
+                soundToggleUserBtn.addEventListener('click', toggleSound);
+                soundToggleChallengeBtn.addEventListener('click', toggleSound);
+
                 startBtn.disabled = false;
                 startBtn.textContent = "Begin Training!";
             }
@@ -610,21 +672,17 @@
                 const translation = lookupTransSelect.value;
                 if (!ref) return showNotification("Please enter a verse reference.", true);
 
-                // Update BLB Translation and Settings
                 if (typeof BLB !== 'undefined' && BLB.Tagger) {
                     BLB.Tagger.Translation = translation;
                     BLB.Tagger.HyperLinks = 'hover';
                 }
 
-                // Display Reference in the Window
                 blbVerseLink.innerHTML = ref + ' (' + translation + ')';
                 blbResultContainer.classList.remove('hidden');
 
-                // Pre-fill the edit form (user can paste text later)
                 customRefInput.value = ref;
                 customTransInput.value = translation;
 
-                // Reload the ScriptTagger
                 if (typeof BLB !== 'undefined' && BLB.Tagger && BLB.Tagger.pageInit) {
                     BLB.Tagger.pageInit();
                 }
@@ -636,28 +694,22 @@
                 } else {
                     statsScreen.classList.add('hidden');
                 }
-                isSessionEnding = false; // Reset flag after action
+                isSessionEnding = false;
             }
 
-            // UPDATED speak() function with visual indicator
             function speak(text, cancelPrevious = true) {
+                if (!soundEnabled) {
+                    showNotification(text);
+                    return;
+                }
                 if (cancelPrevious) {
                     speechSynthesis.cancel();
                     hideSpeakingIndicator();
                 }
                 const utterance = new SpeechSynthesisUtterance(text);
-                
-                // Attach live events so the heart icon appears "alive" exactly while the voice is speaking
-                utterance.onstart = () => {
-                    showSpeakingIndicator();
-                };
-                utterance.onend = () => {
-                    hideSpeakingIndicator();
-                };
-                utterance.onerror = () => {
-                    hideSpeakingIndicator();
-                };
-
+                utterance.onstart = () => { showSpeakingIndicator(); };
+                utterance.onend = () => { hideSpeakingIndicator(); };
+                utterance.onerror = () => { hideSpeakingIndicator(); };
                 speechSynthesis.speak(utterance);
             }
 
@@ -696,21 +748,17 @@
                 typingInput.value = '';
                 typingInput.disabled = false;
 
-                // Randomize or Sequential Logic
                 if (randomizeCheckbox && !randomizeCheckbox.checked) {
-                    // Sequential Logic
                     let nextIndex = 0;
                     if (appState.currentVerse) {
                          const currentIndex = appState.verses.indexOf(appState.currentVerse);
                          nextIndex = currentIndex + 1;
                     }
-                    // Loop back to start if we reach the end or if current verse wasn't found
                     if (nextIndex >= appState.verses.length || nextIndex < 0) {
                         nextIndex = 0;
                     }
                     appState.currentVerse = appState.verses[nextIndex];
                 } else {
-                    // Random Logic (Default)
                     appState.currentVerse = appState.verses[Math.floor(Math.random() * appState.verses.length)];
                 }
 
@@ -760,22 +808,28 @@
                         const originalChar = word[i];
                         let displayChar = '';
                         let charClass = '';
-                        if (isHiddenWord) {
-                            if (charCounter < typedText.length) {
-                                if (typedText[charCounter] === originalChar) {
+                        const isMaskedChar = isHiddenWord && isAlphabetic(originalChar);
+
+                        if (charCounter < typedText.length) {
+                            const typedChar = typedText[charCounter];
+                            const matches = charsMatch(typedChar, originalChar);
+
+                            if (isMaskedChar) {
+                                if (matches) {
                                     displayChar = originalChar;
                                     charClass = 'revealed';
                                 } else {
                                     displayChar = '*';
                                     charClass = 'incorrect';
                                 }
-                            } else { displayChar = '_'; }
+                            } else {
+                                displayChar = originalChar;
+                                charClass = matches ? 'correct' : 'incorrect';
+                            }
                         } else {
-                             displayChar = originalChar;
-                             if (charCounter < typedText.length) {
-                                 charClass = typedText[charCounter] === originalChar ? 'correct' : 'incorrect';
-                             }
+                            displayChar = isMaskedChar ? '_' : originalChar;
                         }
+
                         wordHtml += `<span class="${charClass}">${displayChar}</span>`;
                         charCounter++;
                     }
@@ -786,7 +840,8 @@
 
             function handleTyping() {
                 renderVerseDisplay();
-                if (typingInput.value === appState.currentVerse.text) {
+                // Case-insensitive completion check (user does not need proper capitalization)
+                if (typingInput.value.toLowerCase() === appState.currentVerse.text.toLowerCase()) {
                     completeVerse();
                 }
             }
