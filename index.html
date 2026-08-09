@@ -6,6 +6,8 @@
     <title>Heart Verses</title>
     <!-- BLB ScriptTagger -->
     <script src="https://www.blueletterbible.org/assets/scripts/blbToolTip/BLB_ScriptTagger-min.js" type="text/javascript"></script>
+    <!-- Markdown parser for the in-app Help guide -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script type="text/javascript">
         BLB.Tagger.Translation = 'ESV';
         BLB.Tagger.HyperLinks = 'hover'; 
@@ -369,6 +371,187 @@
                 filter: drop-shadow(0 0 25px #ffff00) drop-shadow(0 0 45px #ff00ff) drop-shadow(0 0 5px #ff0000);
             }
         }
+
+        /* Help Slide-over Panel */
+        #help-overlay {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 199;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        #help-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        #help-panel {
+            position: fixed;
+            top: 0;
+            right: 0;
+            height: 100%;
+            width: 440px;
+            max-width: 90vw;
+            background-color: #0a0a0a;
+            border-left: 2px solid var(--primary-glow);
+            box-shadow: -10px 0 30px rgba(0, 255, 0, 0.25);
+            z-index: 200;
+            transform: translateX(100%);
+            transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        #help-panel.open {
+            transform: translateX(0);
+        }
+
+        .help-panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 25px;
+            border-bottom: 2px solid var(--primary-glow);
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+            flex-shrink: 0;
+        }
+
+        .help-panel-header h2 {
+            margin: 0;
+            font-size: 1.3em;
+            text-shadow: 0 0 8px var(--primary-glow);
+        }
+
+        .help-panel-body {
+            padding: 10px 25px 30px;
+            overflow-y: auto;
+            text-align: left;
+            flex: 1;
+            line-height: 1.55;
+            color: #ddd;
+        }
+
+        .help-panel-body h1 {
+            font-size: 1.4em;
+            margin: 10px 0 8px;
+            color: var(--primary-glow);
+            text-shadow: 0 0 10px var(--primary-glow);
+        }
+
+        .help-panel-body h2 {
+            font-size: 1.2em;
+            margin: 18px 0 4px;
+            color: var(--tertiary-glow);
+            text-shadow: 0 0 6px var(--tertiary-glow);
+            border-top: 1px solid #2a2a2a;
+            padding-top: 16px;
+        }
+
+        .help-panel-body h2:first-of-type {
+            border-top: none;
+            padding-top: 0;
+        }
+
+        .help-panel-body h3 {
+            font-size: 1.05em;
+            margin: 4px 0 6px;
+            color: var(--secondary-glow);
+            text-shadow: 0 0 4px var(--secondary-glow);
+        }
+
+        .help-panel-body h4 {
+            font-size: 0.95em;
+            margin: 4px 0 6px;
+            color: #fff;
+        }
+
+        .help-panel-body p {
+            margin: 0 0 10px;
+        }
+
+        .help-panel-body ul, .help-panel-body ol {
+            margin: 0 0 10px;
+            padding-left: 22px;
+        }
+
+        .help-panel-body li {
+            margin-bottom: 4px;
+        }
+
+        .help-panel-body strong {
+            color: var(--primary-glow);
+        }
+
+        .help-panel-body em {
+            color: var(--tertiary-glow);
+            font-style: italic;
+        }
+
+        .help-panel-body blockquote {
+            margin: 10px 0;
+            padding: 8px 14px;
+            border-left: 3px solid var(--secondary-glow);
+            background-color: #151515;
+            color: #ccc;
+            font-size: 0.92em;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .help-panel-body blockquote p:last-child {
+            margin-bottom: 0;
+        }
+
+        .help-panel-body code {
+            background-color: #222;
+            color: var(--input-text-color);
+            padding: 2px 5px;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+
+        .help-panel-body pre {
+            background-color: #111;
+            padding: 12px;
+            border-radius: 8px;
+            overflow-x: auto;
+            border: 1px solid #2a2a2a;
+        }
+
+        .help-panel-body pre code {
+            background: none;
+            padding: 0;
+        }
+
+        .help-panel-body table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 8px 0 14px;
+            font-size: 0.88em;
+        }
+
+        .help-panel-body th, .help-panel-body td {
+            border: 1px solid #2a2a2a;
+            padding: 6px 8px;
+            text-align: left;
+        }
+
+        .help-panel-body th {
+            background-color: #1a1a1a;
+            color: var(--primary-glow);
+        }
+
+        .help-panel-body hr {
+            border: none;
+            border-top: 1px solid #2a2a2a;
+            margin: 16px 0;
+        }
+
+        .help-panel-body a {
+            color: var(--tertiary-glow);
+        }
     </style>
 </head>
 <body>
@@ -382,6 +565,7 @@
                 <div id="current-user-display"></div>
                 <div style="display: flex; align-items: center; gap: 15px;">
                     <div id="sound-toggle-challenge" class="settings-button">🔊</div>
+                    <div id="help-btn" class="settings-button">❓</div>
                     <div id="settings-btn" class="settings-button">⚙️</div>
                 </div>
             </div>
@@ -540,18 +724,460 @@
 
     <div id="notification-popup" class="notification"></div>
 
+    <!-- Help Slide-over Panel -->
+    <div id="help-overlay"></div>
+    <div id="help-panel">
+        <div class="help-panel-header">
+            <h2>❓ Help &amp; User Guide</h2>
+            <span id="close-help-panel" class="close-button">&times;</span>
+        </div>
+        <div id="help-panel-body" class="help-panel-body">
+            <p style="color:#888;">Loading guide…</p>
+        </div>
+    </div>
+
+    <!-- Embedded source for the Help panel above (kept as plain text so the HTML parser leaves it untouched) -->
+    <script type="text/plain" id="user-guide-markdown">
+# Heart Verses — User Guide
+
+*An app that helps you hide God's word in your heart.*
+
+---
+
+## What this app does
+
+Heart Verses trains you to memorize Scripture by using several learning styles at once. You **read** the verse on screen, you **type** it out by hand, you **hear** it read back to you, and the app **hides** more and more words as you grow — until you can bring the whole verse back from memory.
+
+It runs entirely in your web browser. There's no account to create, nothing to install, and your progress is saved automatically as you go.
+
+**Before you begin:** turn your volume up. The app talks to you — it gives you a spoken tutorial the first time through, and it congratulates you out loud every time you finish a verse. That part is half the fun.
+
+---
+
+## Getting started
+
+### 1. Enter your name
+
+When the app opens, you'll see the welcome screen with two boxes:
+
+- **The text box** — type your first name here if this is your first time.
+- **The dropdown next to it** — if you've used the app on this browser before, your name is already in this list. Just pick it and your training stats come right back.
+
+You only need to fill in one of them. If you type a name *and* pick one from the list, the typed name wins.
+
+> **Why your name matters:** the app keeps separate training stats for each person. Your spouse and your children can all use the same browser on the same computer, and everyone's progress stays their own. More on this in [Multiple users](#multiple-users-in-one-browser).
+
+### 2. Sound on or off
+
+Above the start button is a **🔊 Sound On / 🔇 Sound Off** toggle. Sound is on by default. Turn it off and every spoken line — the tutorial, the congratulations, all of it — appears instead as a text notification at the bottom of the screen. Your choice is remembered next time you open the app, and the same toggle reappears in the top bar once training starts.
+
+### 3. Press the green button
+
+The button reads **"Lay up God's words in my heart."**
+
+If it says *"Loading verses…"* and looks greyed out, give it a second — the app is fetching the verse collection. It'll turn green when it's ready.
+
+> **Prefer video?** There's a short walkthrough linked below the welcome screen — "▶ Watch the Tutorial on YouTube."
+
+---
+
+## The training screen
+
+Once you start, here's what you're looking at:
+
+```
+  📖 1                                    ⚙️
+  ─────────────────────────────────────────
+              John 14:6 (ESV)
+
+  ┌───────────────────────────────────────┐
+  │  Jesus said to him, "I am the ____    │
+  │  and the _____, and the ____. No one  │
+  │  comes to the ______ except through   │
+  │  me."                                 │
+  └───────────────────────────────────────┘
+  ─────────────────────────────────────────
+  ┌───────────────────────────────────────┐
+  │  (you type here)                      │
+  │                                       │
+  └───────────────────────────────────────┘
+```
+
+- **Top left — 📖 with a number.** Your session counter. It shows how many verses you've worked through since you pressed start. It's a fun little challenge: *how many can I knock out in the fifteen minutes I have between meetings?* Tap it any time mid-session to peek at your Training Stats without ending the session.
+- **Top right — 🔊/🔇 and ⚙️.** The sound toggle (see [Getting started](#2-sound-on-or-off)) and the gear that opens the verse pool, where you add and remove verses. See [Managing your verse pool](#managing-your-verse-pool).
+- **The reference** — which verse it is, and which translation.
+- **The verse box** — the verse itself, with some words hidden behind underscores.
+- **The typing box** — where you do the work.
+
+While the app is speaking to you, a small glowing heart pulses above the verse — that's your cue that it's mid-sentence, not stuck.
+
+### The blanks
+
+Some of the words are replaced with underscores, one underscore per letter. That's on purpose. It's easy to skim past small words when you're just reading, and this makes you actually reach for them. You'll be surprised which words you take for granted.
+
+A different set of words is hidden every time a verse comes up, so you never memorize the shape of one particular puzzle.
+
+---
+
+## Typing the verse
+
+Click into the bottom box and type the verse **exactly as it appears** — every letter, every comma, and every quotation mark. (Capitalization doesn't have to match — see below.)
+
+As you type, each character is checked against the verse and colored:
+
+| What you see | What it means |
+|---|---|
+| **Magenta letter** | Correct — this was a visible word |
+| **Gold letter** | Correct — you filled in a hidden word, and it's now revealed |
+| **Red letter, underlined** | Wrong — fix this before you can finish |
+| **Red asterisk `*`** | Wrong — and it's inside a hidden word, so the app won't show you what it should be |
+
+**Example.** If you type `jesus` with a lowercase j where the verse has `Jesus`, it still shows correct — letters are checked without regard to capitalization, so you never have to worry about matching the Bible's capitalization exactly.
+
+Punctuation still counts, though — the commas, the periods, the double quotation marks. Get one of those wrong and it turns red, same as a misspelled word. This precision is the point; it's what makes the verse stick.
+
+You can keep typing past a mistake, but the verse isn't complete until every single character matches, with no red anywhere.
+
+> **Tip:** spellcheck and autocorrect are turned off in the typing box on purpose, so your phone or browser won't quietly "fix" a word into something wrong.
+
+### When you finish
+
+The moment your last character matches, the app **speaks to you.** Sometimes it's one word — *"Marvelous!"* Sometimes it's a whole sentence, often using your name, and it's usually trying to be funny. It's a small reward for finishing the challenge.
+
+A row of buttons also appears at the bottom.
+
+---
+
+## The buttons that appear after you finish
+
+| Button | What it does |
+|---|---|
+| **Next** | Picks another verse — at random from your pool by default, so it could occasionally be the same one again, just by chance. Turn off the **Randomize** checkbox in Edit Verses to step through your pool in order instead. |
+| **🔊** | Reads the verse aloud to you. Press it as many times as you like. Hearing it in another voice is its own kind of practice. |
+| **Difficulty slider** | Sets how much of *this particular verse* gets hidden next time. See below. |
+| **Done** | Ends the session and shows your training stats. |
+
+### The difficulty slider
+
+Every verse carries **its own difficulty level**, from 1 to 7. That means you can push a verse you know well up to level 7 while a brand-new one sits at level 1. You grow one verse at a time.
+
+| Level | Roughly how much is hidden |
+|---|---|
+| 1 | 5% — just a word or two |
+| 2 | 10% |
+| 3 | 20% |
+| 4 | 40% |
+| 5 | 60% |
+| 6 | 80% — most of the verse |
+| 7 | **100% — the entire verse, from memory** |
+
+Level 7 is the goal. Nothing but blanks and the reference at the top.
+
+Every verse starts at level 1. When you move the slider, the new level is **saved instantly** — there's no confirmation popup, but it's recorded. It takes effect the next time that verse comes around.
+
+---
+
+## Managing your verse pool
+
+Press the **⚙️ gear** in the top right to open the Edit Verses screen. Your "pool" is simply the collection of verses the app draws from — and it's **yours alone**. Every person who uses the app has their own separate pool; adding or removing a verse only changes what you see. (More on this in [Multiple users](#multiple-users-in-one-browser).)
+
+> The first time you ever open this screen, the app talks you through it out loud — adding verses, exporting/importing your progress, and loading ready-made lists.
+
+### Adding your own verse
+
+Three boxes at the top:
+
+1. **Reference** — e.g. `John 3:16`
+2. **Translation** — e.g. `ESV`
+3. **Verse Text** — the full text of the verse
+
+Fill in all three and press **Add Verse**. If you leave one blank, the app will tell you.
+
+Type the verse text carefully — whatever you enter becomes the thing you'll be asked to type exactly, punctuation and all.
+
+**Don't want to type it out by hand?** Press **🔍 Search** above the Reference box. It opens a lookup powered by Blue Letter Bible: enter a reference, pick a translation, and press **Show Verse**. Hover over (or tap) the result to reveal the verse text in a popup, highlight and copy it there, then press **Return** and paste it into the Verse Text box. The reference and translation you searched carry back over automatically.
+
+### Removing a verse
+
+Scroll down to the **Verse Pool** list. Every verse has a **🗑️ trash button**. One press removes it — from *your* pool only. Your recorded stats for it aren't erased, though — if you add the verse back later, its history is still there.
+
+### Randomize
+
+Next to the save/load menu is a **Randomize** checkbox, checked by default. With it checked, **Next** picks your next verse at random. Uncheck it and the app instead steps through your pool in order, one after another — handy if you want to work through a list front-to-back.
+
+### The 💾 Save/Load menu
+
+Next to the "Verse Pool" heading is a **💾 icon with a dropdown**:
+
+| Option | What it does |
+|---|---|
+| **Save All Profiles** | Manually saves right now. Mostly unnecessary — see [How your progress is saved](#how-your-progress-is-saved). |
+| **Export All Profiles** | Downloads a backup of your profile. |
+| **Import Profiles** | Loads a backup file back in, replacing your current profile. |
+| **Add Memory Verses...** | Opens a list of curated, named verse collections you can add to *your* pool. |
+
+**Add Memory Verses** opens a window listing each available collection by name, with an **Add** button beside it. Pressing **Add** merges that whole collection into your pool. It won't create duplicates — any verse you already have is skipped, and the app tells you how many were actually added ("Added 19 new verses…"). You can press it more than once safely; the second time it'll simply add nothing new.
+
+### Exporting your profile
+
+Choose **Export All Profiles** from the 💾 menu. Despite the name, it downloads a backup of just *your own* current profile — your verse pool and training stats, nobody else's. The file is named after you, like `heart_verses_Adam.json`.
+
+If it's a shared computer and you want a backup for everyone, each person needs to sign in under their own name and export their own file.
+
+### Importing a profile
+
+Choose **Import Profiles** and pick a backup file.
+
+> ⚠️ **Importing replaces your current profile.** Whatever is in the file — verse pool, stats, settings — overwrites what's currently saved under your name. It doesn't touch any other profile stored on this browser. If you're not sure, export your current profile first as a safety copy.
+
+### Closing the edit screen
+
+Press the grey **×** in the top corner. This also saves your changes, so get in the habit of closing it this way rather than just reloading the page.
+
+---
+
+## How your progress is saved
+
+**Automatically, as you go.** You don't have to do anything.
+
+Your progress is stored in your browser on that specific device. Come back to the same browser and the same web address tomorrow, and everything is waiting — your name in the dropdown, your verse pool, your difficulty levels, and your stats.
+
+Saving happens on its own when you:
+
+- finish a verse
+- move the difficulty slider
+- close the edit screen
+
+**But browser storage isn't permanent.** If you clear your browsing data, or your browser clears its cache on its own, it's gone. So:
+
+> **Export a backup every so often.** ⚙️ → 💾 → *Export All Profiles*. On a shared computer, have each person sign in and export their own. Keep the downloaded file somewhere safe. It's small.
+
+### Moving between devices
+
+There's no automatic sync, but the export/import pair does the job:
+
+1. On your computer: ⚙️ → 💾 → **Export All Profiles**
+2. Get the file onto your other device (email it to yourself, save it to your cloud drive, whatever's easiest)
+3. On your phone: open the app, sign in under the same name, ⚙️ → 💾 → **Import Profiles**, and choose the file
+
+You'll pick up exactly where you left off. Remember that import overwrites your current profile — so do the transfer in one direction at a time rather than training on both devices and hoping they'll merge.
+
+---
+
+## Finishing a session
+
+Press **Done**. Your **Training Stats** appear, listing every verse you've worked on:
+
+- **Trained: _n_ times** — how many times you've completed it
+- **Current Difficulty: _n_** — where its slider sits now
+
+This list is your own, alphabetized by reference, and it keeps growing across every session you ever do.
+
+Press the **×** to close the stats and return to the welcome screen — ready for the next person, or for you again later.
+
+You can also just close the browser whenever you like. Nothing is lost; it's been saving the whole time.
+
+---
+
+## Multiple users in one browser
+
+The whole family can share one computer and one browser.
+
+Each person enters their own first name at the start, and after the first time their name appears in the dropdown. Everything is kept separate, person by person:
+
+- ✅ **Training stats** — how many times each person has trained each verse
+- ✅ **Difficulty levels** — your John 14:6 can be at level 7 while your daughter's is at level 1
+- ✅ **Verse pools** — you can be memorizing a completely different set of verses than your spouse or kids. Add, remove, and load collections freely; nobody else's pool changes.
+
+The first time someone starts a session, their pool begins as a copy of the app's default verse collection — from there it's entirely theirs to shape.
+
+---
+
+## Troubleshooting
+
+**The green button says "Loading verses…" and won't respond.**
+Give it a moment — it's downloading the verse collection. If your internet is down it will fall back to a small built-in set so you can still train.
+
+**I typed the verse perfectly but nothing happened.**
+Something still doesn't match. Look for red in the verse box above. The usual culprits are a missing comma, a missing period, or a straight quote `"` versus a curly one. Also check for an accidental space at the very end.
+
+**I can't hear anything.**
+First check the **🔊 Sound** toggle isn't switched to 🔇 — if it's off, spoken lines show up as on-screen notifications instead of audio. Otherwise, check your device volume, and make sure the browser tab isn't muted. Some browsers won't play audio until you've clicked something on the page first — press the 🔊 button once and it should wake up. Speech also depends on your device having a voice installed, which nearly all do.
+
+**My progress disappeared.**
+Most likely your browser cache was cleared, or you're on a different browser or device, or in a private/incognito window (which forgets everything on close). If you have an exported backup, import it. This is exactly what the export function is for.
+
+**The app doesn't remember my name.**
+Names only appear in the dropdown after you've completed at least one verse under that name.
+
+**I want to start a verse over.**
+Just select everything in the typing box and delete it, or press **Next** to move on and come back to it later.
+
+**A verse in my pool has a typo.**
+There's no edit function — delete it with 🗑️ and add a corrected version with the same reference. Your stats for that reference are preserved.
+
+---
+
+## A few habits that help
+
+- **Aim for level 7 on a handful of verses** rather than level 1 on fifty. Depth beats breadth here.
+- **Use the 🔊 button before you type**, not just after. Hearing it first gives you something to reach for.
+- **Short and often wins.** Five verses between meetings, most days, will outperform a long session once a week.
+- **Export a backup once a month.** It takes five seconds and saves real heartache.
+- **Don't rush past the red.** The mistakes are where the memorizing actually happens.
+
+---
+
+*"I have stored up your word in my heart, that I might not sin against you." — Psalm 119:11*
+    </script>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const appState = {
                 currentUser: null, isFirstEverVerse: false, verses: [], userStats: {},
                 userSettings: { hasVisitedSettings: false }, currentVerse: null, currentVerseHiddenIndices: [],
                 sessionCount: 0,
-                difficultyPercentages: { 1: 0.05, 2: 0.10, 3: 0.20, 4: 0.30, 5: 0.40, 6: 0.50, 7: 1.0 }
+                difficultyPercentages: { 1: 0.05, 2: 0.10, 3: 0.20, 4: 0.40, 5: 0.60, 6: 0.80, 7: 1.0 }
             };
             const encouragementPhrases = [ "Congratulations, <name>!", "Seems like you've really got that one!", "Terrific!", "Jesus saw that, <name>, good job!", "Well done, good and faithful servant!", "Want to increase the difficulty?", "Hey, no using your Bible! ...Just kidding!", "Another step toward memorization!", "I just heard your brain grow a little, <name>!", "You are a person after God's own heart!", "Keep it up, <name>!", "Great job! Do you have time for another?", "Marvelous!", "I'm speechless! Just kidding.", "You've certainly stored THAT word up in your heart!", "May that word dwell in you, richly.", "You're good at this, <name>!", "That was one of my favorites, too!", "Jesus couldn't have typed it better himself!", "This is a new milestone in your training, congrats <name>!", "The same God who parted the Red Sea has already cleared a path for you.", "The joy of the Lord is your strength, <name>!", "God’s plans for you are good.", "Your latter days are going to be greater than your former.", "God’s not finished with you, <name>, He’s just getting to the good part.", "Your name is written in the Book of Life—and the ink is permanent.", "Like manna, God’s provision shows up fresh every single morning.", "You’re a branch connected to the Vine", "Your weeping may last for a night, but joy’s alarm clock is already set for morning.", "Keep shining, <name>—your story is still being written by the best Author ever!" ];
             
+            // Build-time-generated sound effects, ambient music, and pre-rendered tutorial
+            // narration (see HeartVerses_audioMakeover.md). Every playback path is wrapped so a
+            // missing/404 audio file can never throw into the rest of the app — at worst it's silent,
+            // and tutorial narration falls back to speechSynthesis via the fallbackText argument to voice().
+            const AudioBus = (() => {
+                const BASE = 'audio/';
+                const pools = {};          // id -> array of HTMLAudioElement, for overlapping plays
+                let music = null;
+                let currentTrack = null;
+                let unlocked = false;
+
+                const prefersCalm = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+                // `muted` is intentionally NOT persisted here — it mirrors the app's existing
+                // soundEnabled/heartVersesSoundEnabled toggle via setMuted(), so there's one
+                // source of truth for "is sound on" instead of two settings that could drift apart.
+                let settings = { muted: prefersCalm, sfxVolume: 0.35, musicVolume: 0.12, keyClicks: false };
+                try {
+                    const saved = JSON.parse(localStorage.getItem('heartVersesAudio') || 'null');
+                    if (saved) {
+                        settings.sfxVolume = saved.sfxVolume ?? settings.sfxVolume;
+                        settings.musicVolume = saved.musicVolume ?? settings.musicVolume;
+                        settings.keyClicks = saved.keyClicks ?? settings.keyClicks;
+                    }
+                } catch (_) {}
+
+                // Small pool per sound so rapid repeats (typing) don't cut each other off.
+                function pool(id, size = 3) {
+                    if (!pools[id]) {
+                        pools[id] = Array.from({ length: size }, () => {
+                            const a = new Audio(`${BASE}sfx/${id}.mp3`);
+                            a.preload = 'auto';
+                            return a;
+                        });
+                        pools[id].idx = 0;
+                    }
+                    return pools[id];
+                }
+
+                function sfx(id, volumeScale = 1) {
+                    if (settings.muted || !unlocked) return;
+                    try {
+                        const p = pool(id);
+                        const a = p[p.idx++ % p.length];
+                        a.currentTime = 0;
+                        a.volume = Math.min(1, settings.sfxVolume * volumeScale);
+                        a.play().catch(() => {});   // never let audio throw into game logic
+                    } catch (_) {}
+                }
+
+                // Voice lines return a promise so callers can chain if they want. If a pre-rendered
+                // line is missing (not generated yet, or a 404), fallbackText — when given — is
+                // spoken with the browser's speechSynthesis instead, so the tutorial is never silent.
+                function voice(id, fallbackText) {
+                    if (settings.muted || !unlocked) return Promise.resolve();
+                    return new Promise(resolve => {
+                        let settled = false;
+                        function finish() { if (settled) return; settled = true; duck(false); resolve(); }
+                        function fail() {
+                            if (settled) return; settled = true; duck(false);
+                            if (fallbackText) speak(fallbackText);
+                            resolve();
+                        }
+                        try {
+                            const a = new Audio(`${BASE}voice/${id}.mp3`);
+                            a.volume = 1.0;
+                            duck(true);
+                            a.addEventListener('ended', finish);
+                            a.addEventListener('error', fail);
+                            a.play().catch(fail);
+                        } catch (_) { fail(); }
+                    });
+                }
+
+                // Drop the music under narration so the tutorial is always intelligible.
+                function duck(on) {
+                    if (!music) return;
+                    const target = on ? settings.musicVolume * 0.25 : settings.musicVolume;
+                    fadeTo(music, target, 400);
+                }
+
+                function fadeTo(el, target, ms) {
+                    const start = el.volume, steps = 20, dt = ms / steps;
+                    let i = 0;
+                    clearInterval(el._fade);
+                    el._fade = setInterval(() => {
+                        i++;
+                        el.volume = Math.max(0, Math.min(1, start + (target - start) * (i / steps)));
+                        if (i >= steps) clearInterval(el._fade);
+                    }, dt);
+                }
+
+                function playMusic(track) {
+                    if (currentTrack === track) return;
+                    currentTrack = track;
+                    if (settings.muted || !unlocked) return;
+                    const next = new Audio(`${BASE}music/${track}.mp3`);
+                    next.loop = true;
+                    next.volume = 0;
+                    next.play().then(() => {
+                        fadeTo(next, settings.musicVolume, 1500);
+                        if (music) { const old = music; fadeTo(old, 0, 1500); setTimeout(() => old.pause(), 1600); }
+                        music = next;
+                    }).catch(() => {});
+                }
+
+                function stopMusic() {
+                    if (music) { const old = music; fadeTo(old, 0, 800); setTimeout(() => old.pause(), 900); }
+                    music = null; currentTrack = null;
+                }
+
+                // Must be called from inside a real user gesture handler.
+                function unlock() {
+                    if (unlocked) return;
+                    unlocked = true;
+                    if (currentTrack) { const t = currentTrack; currentTrack = null; playMusic(t); }
+                }
+
+                // Driven externally by the app's existing sound toggle — see toggleSound() in initializeApp().
+                function setMuted(val) {
+                    settings.muted = val;
+                    if (settings.muted) stopMusic();
+                    else if (currentTrack) { const t = currentTrack; currentTrack = null; playMusic(t); }
+                }
+
+                function toggleMute() {
+                    setMuted(!settings.muted);
+                    return settings.muted;
+                }
+
+                const isMuted = () => settings.muted;
+
+                return { sfx, voice, playMusic, stopMusic, unlock, setMuted, toggleMute, isMuted, settings };
+            })();
+
             let isSessionEnding = false;
             let soundEnabled = true;
+            let lastTypedLen = 0, lastErrorAt = 0, lastDifficultyValue = null;
 
             const challengeScreen = document.getElementById('challenge-screen'), userScreen = document.getElementById('user-screen'), editScreen = document.getElementById('edit-screen'), statsScreen = document.getElementById('stats-screen'), startBtn = document.getElementById('start-btn'), nameInput = document.getElementById('name-input'), sessionCounter = document.getElementById('session-counter'), currentUserDisplay = document.getElementById('current-user-display'), settingsBtn = document.getElementById('settings-btn'), verseRefDisplay = document.getElementById('verse-reference-display'), verseTextDisplay = document.getElementById('verse-text-display'), typingInput = document.getElementById('typing-input'), completionControls = document.getElementById('completion-controls'), nextVerseBtn = document.getElementById('next-verse-btn'), speakVerseBtn = document.getElementById('speak-verse-btn'), doneBtn = document.getElementById('done-btn'), difficultySlider = document.getElementById('difficulty-slider'), difficultyLevelLabel = document.getElementById('difficulty-level-label'), closeEditScreenBtn = document.getElementById('close-edit-screen'), addVerseBtn = document.getElementById('add-verse-btn'), customRefInput = document.getElementById('custom-ref-input'), customTransInput = document.getElementById('custom-trans-input'), customTextInput = document.getElementById('custom-text-input'), versePoolList = document.getElementById('verse-pool-list'), fileMenu = document.getElementById('file-menu'), importFileInput = document.getElementById('import-file-input'), closeStatsScreenBtn = document.getElementById('close-stats-screen'), statsTitle = document.getElementById('stats-title'), statsList = document.getElementById('stats-list'), notificationPopup = document.getElementById('notification-popup'), memoryVersesModal = document.getElementById('memory-verses-modal'), closeMemoryVersesBtn = document.getElementById('close-memory-verses');
             
@@ -575,6 +1201,14 @@
             // Sound toggle elements
             const soundToggleUserBtn = document.getElementById('sound-toggle-user');
             const soundToggleChallengeBtn = document.getElementById('sound-toggle-challenge');
+
+            // Help panel elements
+            const helpBtn = document.getElementById('help-btn');
+            const helpOverlay = document.getElementById('help-overlay');
+            const helpPanel = document.getElementById('help-panel');
+            const closeHelpPanelBtn = document.getElementById('close-help-panel');
+            const helpPanelBody = document.getElementById('help-panel-body');
+            let helpGuideLoaded = false;
 
             let notificationTimeout;
 
@@ -614,7 +1248,12 @@
                 difficultySlider.addEventListener('input', () => difficultyLevelLabel.textContent = difficultySlider.value);
                 difficultySlider.addEventListener('change', updateDifficultyStatOnSliderChange);
                 closeMemoryVersesBtn.addEventListener('click', () => memoryVersesModal.classList.add('hidden'));
-                
+
+                // Help panel listeners
+                helpBtn.addEventListener('click', openHelpPanel);
+                closeHelpPanelBtn.addEventListener('click', closeHelpPanel);
+                helpOverlay.addEventListener('click', closeHelpPanel);
+
                 // Lookup Listeners
                 openLookupBtn.addEventListener('click', () => {
                     lookupScreen.classList.remove('hidden');
@@ -651,6 +1290,7 @@
                 function toggleSound() {
                     soundEnabled = !soundEnabled;
                     localStorage.setItem('heartVersesSoundEnabled', soundEnabled.toString());
+                    AudioBus.setMuted(!soundEnabled);
                     updateToggleDisplays();
                 }
 
@@ -659,6 +1299,7 @@
                 if (savedSound !== null) {
                     soundEnabled = savedSound === 'true';
                 }
+                AudioBus.setMuted(!soundEnabled);
                 updateToggleDisplays();
                 soundToggleUserBtn.addEventListener('click', toggleSound);
                 soundToggleChallengeBtn.addEventListener('click', toggleSound);
@@ -718,21 +1359,27 @@
                 notificationPopup.textContent = message;
                 notificationPopup.className = 'notification show';
                 if (isError) notificationPopup.classList.add('error');
+                AudioBus.sfx(isError ? 'notify_error' : 'notify', 0.8);
                 notificationTimeout = setTimeout(() => { notificationPopup.classList.remove('show'); }, 3000);
             }
 
             async function startChallenge() {
+                // Unlock happens here, unconditionally, because this click is the only reliable
+                // user-gesture we get — browsers require audio to be unlocked from inside one.
+                AudioBus.unlock();
                 const selectedUser = nameInput.value.trim();
                 if (!selectedUser) {
                     showNotification("Please enter a name.", true);
                     return;
                 }
+                AudioBus.sfx('ui_start');
                 appState.currentUser = selectedUser;
                 await loadUserData(selectedUser);
                 appState.isFirstEverVerse = Object.keys(appState.userStats).length === 0;
                 currentUserDisplay.textContent = appState.currentUser;
                 userScreen.classList.add('hidden');
                 challengeScreen.classList.remove('hidden');
+                AudioBus.playMusic('ambient_focus');
                 appState.sessionCount = 0;
                 updateSessionCounter();
                 nextVerse();
@@ -744,9 +1391,11 @@
                     returnToUserScreen();
                     return;
                 }
+                AudioBus.sfx('ui_click', 0.6);
                 completionControls.classList.add('hidden');
                 typingInput.value = '';
                 typingInput.disabled = false;
+                lastTypedLen = 0;
 
                 if (randomizeCheckbox && !randomizeCheckbox.checked) {
                     let nextIndex = 0;
@@ -765,6 +1414,7 @@
                 const verseId = appState.currentVerse.reference;
                 const stats = getVerseStats(verseId);
                 const difficulty = stats.difficulty;
+                lastDifficultyValue = difficulty;
                 const hidePercentage = appState.difficultyPercentages[difficulty];
                 difficultySlider.value = difficulty;
                 difficultyLevelLabel.textContent = difficulty;
@@ -789,7 +1439,10 @@
                 updateSessionCounter(true);
                 typingInput.focus();
                 if (appState.isFirstEverVerse) {
-                    speak("Beginner's Tutorial: In the lower box, type out the following verse. Some words have been hidden to help you grow. When all words have been correctly typed, you'll be presented with more options.");
+                    AudioBus.voice(
+                        'tutorial_first_verse',
+                        "Beginner's Tutorial: In the lower box, type out the following verse. Some words have been hidden to help you grow. When all words have been correctly typed, you'll be presented with more options."
+                    );
                 }
             }
 
@@ -840,8 +1493,28 @@
 
             function handleTyping() {
                 renderVerseDisplay();
+
+                // Typing feedback fires on transitions only, not every keystroke, so it doesn't
+                // machine-gun. Uses charsMatch (case-insensitive on letters) so a capitalization
+                // difference — which the app already treats as correct — never triggers the error sound.
+                const val = typingInput.value;
+                const target = appState.currentVerse.text;
+                if (val.length > lastTypedLen) {
+                    const i = val.length - 1;
+                    if (!charsMatch(val[i], target[i])) {
+                        if (Date.now() - lastErrorAt > 400) {
+                            AudioBus.sfx('word_error', 0.5);
+                            lastErrorAt = Date.now();
+                        }
+                    } else if (/\s/.test(target[i]) || i === target.length - 1) {
+                        AudioBus.sfx('word_correct', 0.6);
+                    }
+                    if (AudioBus.settings.keyClicks) AudioBus.sfx('typing_key', 0.3);
+                }
+                lastTypedLen = val.length;
+
                 // Case-insensitive completion check (user does not need proper capitalization)
-                if (typingInput.value.toLowerCase() === appState.currentVerse.text.toLowerCase()) {
+                if (val.toLowerCase() === target.toLowerCase()) {
                     completeVerse();
                 }
             }
@@ -850,9 +1523,14 @@
                 typingInput.disabled = true;
                 updateCurrentVerseStats(true);
                 completionControls.classList.remove('hidden');
+                AudioBus.sfx('verse_complete');
+                if (appState.sessionCount % 5 === 0) AudioBus.sfx('milestone');
                 if (appState.isFirstEverVerse) {
+                    // The pre-rendered line can't carry the user's name, so it drops it (opens with
+                    // "Well done" instead). If that file hasn't been generated yet, fall back to the
+                    // original personalized speechSynthesis line so nothing goes silent in the meantime.
                     const text = `Congratulations, ${appState.currentUser}! Now use the buttons below to hear the verse, increase the difficulty for this verse, continue to the next verse, or be done with this session and view your training stats.`;
-                    speak(text);
+                    AudioBus.voice('tutorial_first_complete', text);
                     appState.isFirstEverVerse = false;
                 } else {
                     const randomIndex = Math.floor(Math.random() * encouragementPhrases.length);
@@ -871,7 +1549,13 @@
             }
             
             function updateDifficultyStatOnSliderChange() {
-                updateCurrentVerseStats(false); 
+                const newValue = parseInt(difficultySlider.value);
+                if (lastDifficultyValue !== null) {
+                    if (newValue > lastDifficultyValue) AudioBus.sfx('difficulty_up');
+                    else if (newValue < lastDifficultyValue) AudioBus.sfx('difficulty_down');
+                }
+                lastDifficultyValue = newValue;
+                updateCurrentVerseStats(false);
                 saveToBrowser();
             }
 
@@ -889,6 +1573,12 @@
 
             function showStats() {
                 if (!appState.currentUser) return;
+                // Only cue "session complete" audio when actually ending via Done — a mid-session
+                // peek at stats (clicking the 📖 counter) shouldn't interrupt the focus music.
+                if (isSessionEnding) {
+                    AudioBus.sfx('session_done');
+                    AudioBus.playMusic('ambient_stats');
+                }
                 statsTitle.textContent = `${appState.currentUser}'s Training Stats`;
                 statsList.innerHTML = '';
                 const sortedRefs = Object.keys(appState.userStats).sort();
@@ -906,6 +1596,7 @@
                 statsScreen.classList.add('hidden');
                 challengeScreen.classList.add('hidden');
                 userScreen.classList.remove('hidden');
+                AudioBus.playMusic('ambient_menu');
                 nameInput.value = '';
                 currentUserDisplay.textContent = '';
                 appState.currentUser = null;
@@ -915,6 +1606,7 @@
             }
 
             function openEditScreen() {
+                AudioBus.sfx('modal_open');
                 if (!appState.userSettings.hasVisitedSettings) {
                     speak("This is the place to add custom verses, export your progress to a file, import an existing progress file, or load lists of memory verses.");
                     appState.userSettings.hasVisitedSettings = true;
@@ -925,8 +1617,29 @@
             }
 
             function closeEditScreen() {
+                AudioBus.sfx('modal_close');
                 editScreen.classList.add('hidden');
                 saveToBrowser();
+            }
+
+            function openHelpPanel() {
+                helpOverlay.classList.add('show');
+                helpPanel.classList.add('open');
+                if (!helpGuideLoaded) {
+                    try {
+                        const markdown = document.getElementById('user-guide-markdown').textContent;
+                        helpPanelBody.innerHTML = marked.parse(markdown);
+                        helpGuideLoaded = true;
+                    } catch (error) {
+                        helpPanelBody.innerHTML = '<p style="color:#f66;">Sorry, the guide couldn\'t be loaded right now.</p>';
+                        console.error('Failed to load user guide:', error);
+                    }
+                }
+            }
+
+            function closeHelpPanel() {
+                helpOverlay.classList.remove('show');
+                helpPanel.classList.remove('open');
             }
 
             function addCustomVerse() {
@@ -935,6 +1648,7 @@
                 const text = customTextInput.value.trim();
                 if (reference && translation && text) {
                     appState.verses.push({ reference, translation, text });
+                    AudioBus.sfx('verse_added');
                     customRefInput.value = ''; customTransInput.value = ''; customTextInput.value = '';
                     updateVersePoolList();
                 } else {
@@ -954,6 +1668,7 @@
                     button.addEventListener('click', (e) => {
                         const indexToRemove = parseInt(e.target.dataset.index);
                         appState.verses.splice(indexToRemove, 1);
+                        AudioBus.sfx('verse_deleted');
                         updateVersePoolList();
                     });
                 });
