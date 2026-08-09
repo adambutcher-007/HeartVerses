@@ -1435,6 +1435,13 @@ There's no edit function — delete it with 🗑️ and add a corrected version 
                     words.forEach((word, index) => { if(word.trim() !== '') wordsToHideIndices.push(index); });
                 }
                 appState.currentVerseHiddenIndices = wordsToHideIndices;
+                // Per-character -> word-index map, so handleTyping() can tell which word a
+                // just-typed character belongs to (used to gate the word_correct sfx to gold words).
+                let charWordIndex = [];
+                words.forEach((word, wordIndex) => {
+                    for (let i = 0; i < word.length; i++) charWordIndex.push(wordIndex);
+                });
+                appState.currentVerseCharWordIndex = charWordIndex;
                 renderVerseDisplay();
                 updateSessionCounter(true);
                 typingInput.focus();
@@ -1507,7 +1514,13 @@ There's no edit function — delete it with 🗑️ and add a corrected version 
                             lastErrorAt = Date.now();
                         }
                     } else if (/\s/.test(target[i]) || i === target.length - 1) {
-                        AudioBus.sfx('word_correct', 0.6);
+                        // A word just finished correctly — only cue word_correct if it was a
+                        // hidden (gold) word being revealed, not every ordinary visible word.
+                        const finishedCharIndex = /\s/.test(target[i]) ? i - 1 : i;
+                        const wordIndex = appState.currentVerseCharWordIndex[finishedCharIndex];
+                        if (appState.currentVerseHiddenIndices.includes(wordIndex)) {
+                            AudioBus.sfx('word_correct', 0.6);
+                        }
                     }
                     if (AudioBus.settings.keyClicks) AudioBus.sfx('typing_key', 0.3);
                 }
