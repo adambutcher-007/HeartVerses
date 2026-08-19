@@ -1040,7 +1040,28 @@ There's no edit function — delete it with 🗑️ and add a corrected version 
                 difficultyPercentages: { 1: 0.05, 2: 0.10, 3: 0.20, 4: 0.40, 5: 0.60, 6: 0.80, 7: 1.0 }
             };
             const encouragementPhrases = [ "Congratulations, <name>!", "Seems like you've really got that one!", "Terrific!", "Jesus saw that, <name>, good job!", "Well done, good and faithful servant!", "Want to increase the difficulty?", "Hey, no using your Bible! ...Just kidding!", "Another step toward memorization!", "I just heard your brain grow a little, <name>!", "You are a person after God's own heart!", "Keep it up, <name>!", "Great job! Do you have time for another?", "Marvelous!", "I'm speechless! Just kidding.", "You've certainly stored THAT word up in your heart!", "May that word dwell in you, richly.", "You're good at this, <name>!", "That was one of my favorites, too!", "Jesus couldn't have typed it better himself!", "This is a new milestone in your training, congrats <name>!", "The same God who parted the Red Sea has already cleared a path for you.", "The joy of the Lord is your strength, <name>!", "God’s plans for you are good.", "Your latter days are going to be greater than your former.", "God’s not finished with you, <name>, He’s just getting to the good part.", "Your name is written in the Book of Life—and the ink is permanent.", "Like manna, God’s provision shows up fresh every single morning.", "You’re a branch connected to the Vine", "Your weeping may last for a night, but joy’s alarm clock is already set for morning.", "Keep shining, <name>—your story is still being written by the best Author ever!" ];
-            
+
+            // Pre-rendered ElevenLabs voice files for encouragementPhrases, mapped 1:1 by index.
+            // Indices 0-16 come from audio_prompts_encouragements.json (recorded against
+            // HeartVerses.html's original 38-phrase list — the trailing <name> commas differ
+            // from this file's wording, but the spoken words are the same). Indices 17-29 are
+            // the newer scripture-themed phrases unique to this file, covered by
+            // audio_prompts_encouragements_v2.json. Either way, playEncouragement() falls back
+            // to speechSynthesis automatically if a given file hasn't been generated yet or
+            // fails to load, so nothing here can go silent while audio/ catches up.
+            const encouragementAudioIds = [
+                'congratulations', 'really_got_that_one', 'terrific', 'jesus_saw_that',
+                'well_done_faithful_servant', 'want_to_increase_difficulty', 'no_using_your_bible',
+                'another_step_toward_memorization', 'brain_grow_a_little', 'person_after_gods_own_heart',
+                'keep_it_up', 'time_for_another', 'marvelous', 'speechless_just_kidding',
+                'stored_that_word_up', 'word_dwell_in_you_richly', 'good_at_this',
+                'one_of_my_favorites_too', 'jesus_couldnt_have_typed_it_better', 'new_milestone_congrats',
+                'red_sea_path_cleared', 'joy_of_the_lord_is_your_strength', 'gods_plans_for_you_are_good',
+                'latter_days_greater_than_former', 'gods_not_finished_with_you', 'name_written_in_book_of_life',
+                'like_manna_provision_fresh', 'branch_connected_to_the_vine', 'weeping_may_last_for_a_night',
+                'keep_shining_story_still_being_written'
+            ];
+
             // Build-time-generated sound effects, ambient music, and pre-rendered tutorial
             // narration (see HeartVerses_audioMakeover.md). Every playback path is wrapped so a
             // missing/404 audio file can never throw into the rest of the app — at worst it's silent,
@@ -1354,6 +1375,19 @@ There's no edit function — delete it with 🗑️ and add a corrected version 
                 speechSynthesis.speak(utterance);
             }
 
+            // Plays the pre-rendered encouragement line for a given encouragementPhrases index,
+            // via AudioBus.voice() (which already falls back to speak(fallbackText) if the file
+            // is missing or fails to load/play). If this index has no recording at all yet
+            // (see encouragementAudioIds), skips the audio lookup and just speaks the text.
+            function playEncouragement(index, fallbackText) {
+                const id = encouragementAudioIds[index];
+                if (id) {
+                    AudioBus.voice(`encourage/${id}`, fallbackText);
+                } else {
+                    speak(fallbackText);
+                }
+            }
+
             function showNotification(message, isError = false) {
                 clearTimeout(notificationTimeout);
                 notificationPopup.textContent = message;
@@ -1548,7 +1582,7 @@ There's no edit function — delete it with 🗑️ and add a corrected version 
                 } else {
                     const randomIndex = Math.floor(Math.random() * encouragementPhrases.length);
                     const phrase = encouragementPhrases[randomIndex].replace(/<name>/g, appState.currentUser);
-                    speak(phrase);
+                    playEncouragement(randomIndex, phrase);
                 }
                 saveToBrowser();
             }
